@@ -1,0 +1,9 @@
+.git
+.git/**
+.gitignore
+.assetsignore
+.claude
+.claude/**
+wrangler.jsonc
+CNAME
+node_modules

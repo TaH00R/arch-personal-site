@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>about • TaHooR</title>
+  <meta name="theme-color" content="#11111b" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+
+<body data-cwd="~/about" data-root="../">
+  <div class="wallpaper" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="panel">
+    <div class="panel-left">
+      <a class="panel-brand" href="../">TaHooR</a>
+      <ul class="workspaces">
+        <li><a href="../"><span class="ws-num">1</span>home</a></li>
+        <li><a aria-current="page" href="../about/"><span class="ws-num">2</span>about</a></li>
+        <li><a href="../blogs/"><span class="ws-num">3</span>blog</a></li>
+      </ul>
+    </div>
+    <div class="panel-center"><span>&copy; 2026 &middot; <a href="https://github.com/TaHooR" target="_blank" rel="noopener">TaHooR</a> &middot; running on <span>arch btw</span></span></div>
+    <div class="panel-right">
+      <span class="panel-swatches" aria-hidden="true">
+        <i class="sw-red"></i><i class="sw-yellow"></i><i class="sw-green"></i><i class="sw-blue"></i><i class="sw-mauve"></i>
+      </span>
+      <span class="panel-clock"></span>
+    </div>
+  </header>
+
+  <main id="main" class="desktop desktop-surface">
+    <section class="terminal window">
+      <div class="term-titlebar">
+        <span class="term-dots" aria-hidden="true"><i class="dot-red"></i><i class="dot-yellow"></i><i class="dot-green"></i></span>
+        <span class="term-title"><b>tahoor@arch</b>: ~/about</span>
+        <span></span>
+      </div>
+
+      <div class="term-body">
+        <div class="prompt">
+          <span class="p-loc">tahoor@arch</span>
+          <span class="p-path">~/about</span>
+          <span class="p-sym">$</span>
+          <span class="p-cmd">cat <span class="arg">about.md</span></span>
+        </div>
+
+        <p class="out">i'm TaHooR, a CS student at IIIT Guwahati who spends an unreasonable amount of time turning ideas into software.</p>
+        <p class="out">my late father had a lot of interest in technology and that most prolly became the reason for my interest in computer science, i wanna be like the cool programming nerds that are working on the most complex systems.</p>
+        <p class="out">i've had a computer since childhood but i never got into programming until much later in life, maybe the reason for that was the JEE race and the pressure to get into a good college (well i didnt get one tho).</p>
+        <p class="out">i think that people are losing the passion for programming and are instead focusing on more trendy technologies & jobs which is harming the current state of the field.</p>
+        <p class="out">i like listening to music, playing games, writing poetry & maybe drawing some stuff.</p>
+        <p class="out">the idea for this site is totally not original but i like it anyway.</p>
+
+        <div class="cmd">
+          <div class="cmd-output"></div>
+          <div class="cmd-line">
+            <span class="p-loc">tahoor@arch</span>
+            <span class="p-path">~/about</span>
+            <span class="p-sym">$</span>
+            <input class="cmd-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="terminal command input" />
+          </div>
+          <div class="cmd-hint">type <kbd>help</kbd> or just click. try <kbd>cd ~</kbd>, <kbd>cd blog</kbd>.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/archfs.js"></script>
+  <script src="../assets/js/terminal.js"></script>
+  <script src="../assets/js/desktop.js"></script>
+</body>
+
+</html>
