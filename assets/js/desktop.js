@@ -4,6 +4,9 @@
   const body = document.body;
   const ROOT = body.dataset.root || "";
   const DATA = window.TAHOOR_DATA || {};
+  const SITE = DATA.site || {};
+  const USER = SITE.name || "TaHooR";
+  const HOMEP = SITE.home || "/home/tahoor";
   const HOME = body.dataset.cwd === "~";
   const isMobile = () => window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
 
@@ -41,11 +44,11 @@
   const DOCS = {
     "projects.md": {
       heading: "# things i've worked on",
-      items: (DATA.projects || []).map((p) => [p.name, p.description]),
+      items: DATA.projects || [],
     },
     "skills.md": {
       heading: "# a collection of my skills",
-      items: (DATA.skills || []).map((s) => [s.name, s.description]),
+      items: DATA.skills || [],
     },
   };
 
@@ -66,7 +69,6 @@
 
   const SOCIALS = DATA.socials || [];
 
-  const PLAYLIST = TRACKS.map((t) => Object.assign({}, t, { src: ROOT + t.src, art: ROOT + t.art }));
 
   let zTop = 10;
   let activeId = null;
@@ -428,8 +430,11 @@
 
   function loadTrack(w, idx, opts) {
     opts = opts || {};
-    w.idx = (idx + PLAYLIST.length) % PLAYLIST.length;
-    const t = PLAYLIST[w.idx];
+    if (!TRACKS.length) return;
+
+    w.idx = (idx + TRACKS.length) % TRACKS.length;
+    const source = TRACKS[w.idx];
+    const t = { ...source, src: ROOT + source.src, art: ROOT + source.art };
     const el = w.el;
     el.querySelector(".pl-art").src = t.art;
     el.querySelector(".pl-title").textContent = t.title;
@@ -439,7 +444,7 @@
     w.audio.src = t.src;
     w.startAt = opts.time || 0;
     if (opts.autoplay !== false) w.audio.play().catch(() => {});
-    MUSIC.forEach((m, i) => { if (m.el) m.el.classList.toggle("playing", i === w.idx); });
+    MUSIC.forEach((button, i) => button.classList.toggle("playing", i === w.idx));
     setNowPlaying(t);
     savePlayer(w);
   }
@@ -527,17 +532,20 @@
   window.sidhOpen = sidhOpen;
 
   function buildGrid(container) {
-    MUSIC = TRACKS.map((t) => {
-      const b = document.createElement("button");
-      b.className = "fm-file";
-      b.innerHTML =
-        '<span class="fm-thumb"><img src="' + ROOT + t.art + '" alt="" loading="lazy"></span>' +
-        '<span class="fm-name">' + t.file + "</span>";
-      container.appendChild(b);
-      return Object.assign({}, t, { el: b, src: ROOT + t.src, art: ROOT + t.art });
+    MUSIC = TRACKS.map((track) => {
+      const button = document.createElement("button");
+      button.className = "fm-file";
+      button.innerHTML =
+        '<span class="fm-thumb"><img src="' + ROOT + track.art + '" alt="" loading="lazy"></span>' +
+        '<span class="fm-name">' + track.file + "</span>";
+      container.appendChild(button);
+      return button;
     });
-    const ev = isMobile() ? "click" : "dblclick";
-    MUSIC.forEach((m, i) => m.el.addEventListener(ev, () => openPlayer(i)));
+
+    const event = isMobile() ? "click" : "dblclick";
+    MUSIC.forEach((button, index) =>
+      button.addEventListener(event, () => openPlayer(index))
+    );
   }
 
   function openMusicFolder() {
@@ -555,8 +563,8 @@
     el.className = "window filemanager";
     el.innerHTML =
       '<div class="win-bar"><span class="win-dots"><i class="dot-red"></i><i class="dot-yellow"></i><i class="dot-green"></i></span>' +
-      '<span class="term-title"><b>Dolphin</b> — /home/tahoor/music</span><span></span></div>' +
-      '<div class="term-body fm-body"><div class="fm-toolbar"><span class="fm-path">home / tahoor / music</span>' +
+      '<span class="term-title"><b>Dolphin</b> — ' + HOMEP + '/music</span><span></span></div>' +
+      '<div class="term-body fm-body"><div class="fm-toolbar"><span class="fm-path">' + HOMEP.replace("/home/", "home / ") + '/music</span>' +
       '<span class="fm-count">' + TRACKS.length + ' items · double-click to play</span></div><div class="fm-grid"></div></div>';
     surf.appendChild(el);
     buildGrid(el.querySelector(".fm-grid"));
@@ -596,7 +604,12 @@
       return;
     }
     const rows = doc.items
-      .map(([t, s]) => '<li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">' + t + '</div><div class="row-sub">' + s + "</div></div></li>")
+      .map((item) =>
+        '<li class="row"><span class="dot" aria-hidden="true"></span><div>' +
+        '<div class="row-title">' + (item.name || "") + "</div>" +
+        '<div class="row-sub">' + (item.description || "") + "</div>" +
+        "</div></li>"
+      )
       .join("");
     const el = document.createElement("section");
     el.className = "window docviewer";
@@ -645,7 +658,7 @@
     el.className = "window socialswin";
     el.innerHTML =
       '<div class="win-bar"><span class="win-dots"><i class="dot-red"></i><i class="dot-yellow"></i><i class="dot-green"></i></span>' +
-      '<span class="term-title"><b>Dolphin</b> — /home/tahoor/socials</span><span></span></div>' +
+      '<span class="term-title"><b>Dolphin</b> — ' + HOMEP + '/socials</span><span></span></div>' +
       '<div class="term-body soc-body">' + items + "</div>";
     surf.appendChild(el);
     const w = { id: "socials", el, kind: "folder", title: "Dolphin — ~/socials", min: false, max: false };
@@ -759,17 +772,18 @@
     ensureSurf();
     if (!surf) return;
     if (wins.about) { const w = wins.about; w.el.style.display = ""; w.min = false; if (w.tb) w.tb.classList.remove("minimized"); focusWin(w); return; }
+    const focus = Array.isArray(SITE.focus) ? SITE.focus.join(" · ") : "";
     const info = [
-      ["host", "TaHooR@arch"],
-      ["os", "Arch Linux x86_64"],
-      ["kernel", "Linux 6.x-arch1-1"],
-      ["wm", "Hyprland · Wayland"],
-      ["shell", "zsh"],
-      ["terminal", "Alacritty"],
-      ["editor", "Neovim"],
-      ["cpu", "13th Gen Intel Core i5"],
-      ["gpu", "NVIDIA GeForce RTX 4050 Laptop GPU"],
-      ["focus", "Go · C++ · Flutter · Spring Boot · security"],
+      ["host", USER + "@" + (SITE.hostname || "arch")],
+      ["os", (SITE.os || "Arch Linux") + " x86_64"],
+      ["kernel", SITE.kernel || "Linux 6.x-arch1-1"],
+      ["wm", (SITE.desktop || "Hyprland") + " · " + (SITE.compositor || "Wayland")],
+      ["shell", SITE.shell || "zsh"],
+      ["terminal", SITE.terminal || "Alacritty"],
+      ["editor", SITE.editor || "Neovim"],
+      ["cpu", SITE.cpu || "13th Gen Intel Core i5"],
+      ["gpu", SITE.gpu || "NVIDIA GeForce RTX 4050 Laptop GPU"],
+      ["focus", focus],
     ];
     const rows = info.map(([k, v]) => '<li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">' + k + '</div><div class="row-sub">' + v + "</div></div></li>").join("");
     const el = document.createElement("section");

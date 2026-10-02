@@ -1685,6 +1685,22 @@ body {
   fill: currentColor;
 }
 
+.poem-content {
+  margin: 14px 0 0;
+  color: var(--subtext);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 760px) {
+  .poem-content {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+}
+
 .player .i-pause { display: none; }
 .player.playing .i-play { display: none; }
 .player.playing .i-pause { display: block; }

@@ -4,6 +4,10 @@
   const DATA = window.TAHOOR_DATA || {};
   const SITE = DATA.site || {};
   const HOMEP = SITE.home || "/home/tahoor";
+  const USER = SITE.name || "TaHooR";
+  const USERNAME = SITE.username || USER.toLowerCase();
+  const SHELL = SITE.shell || "zsh";
+  const CPU = SITE.cpu || "13th Gen Intel(R) Core(TM) i5";
   const FS = {};
 
   function addDir(path, extra) {
@@ -54,7 +58,7 @@
   addFile(
     "/etc/passwd",
     "root:x:0:0:root:/root:/bin/bash\n" +
-    "tahoor:x:1000:1000:TaHooR:/home/tahoor:/bin/zsh\n"
+    `${USERNAME}:x:1000:1000:${USER}:${HOMEP}:${SHELL.startsWith("/") ? SHELL : "/bin/" + SHELL}\n`
   );
   addFile("/etc/fstab", "# /etc/fstab\n# imaginary, because this is a website\n");
   addFile(
@@ -64,13 +68,13 @@
     "[extra]\nInclude = /etc/pacman.d/mirrorlist\n"
   );
   addFile("/etc/pacman.d/mirrorlist", "Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch\n");
-  addFile("/etc/motd", "welcome to TaHooR's imaginary Arch box.\n");
+  addFile("/etc/motd", "welcome to " + USER + "'s imaginary " + (SITE.os || "Arch Linux") + " box.\n");
   addFile("/etc/issue", "Arch Linux \\r \\m\n");
   addFile("/proc/version", "Linux version 6.x-arch1-1 (Arch Linux)\n");
   addFile(
     "/proc/cpuinfo",
     "processor\t: 0\n" +
-    "model name\t: 13th Gen Intel(R) Core(TM) i5\n" +
+    "model name\t: " + CPU + "\n" +
     "cpu MHz\t\t: 4500.000\n" +
     "cache size\t: 12288 KB\n" +
     "... (11 more processors)\n"
@@ -80,13 +84,13 @@
 
   addFile(
     HOMEP + "/.zshrc",
-    "# TaHooR's zsh config\n" +
+    "# " + USER + "'s " + SHELL + " config\n" +
     "export EDITOR=nvim\n" +
     "export BROWSER=firefox\n" +
     "alias ll='ls -lah'\n" +
     "alias gs='git status'\n"
   );
-  addFile(HOMEP + "/.gitconfig", "[user]\n\tname = TaHooR\n[init]\n\tdefaultBranch = main\n");
+  addFile(HOMEP + "/.gitconfig", "[user]\n\tname = " + USER + "\n[init]\n\tdefaultBranch = main\n");
   addFile(HOMEP + "/.xinitrc", "exec Hyprland\n");
   addFile(HOMEP + "/.config/README.md", "Arch + Hyprland + way too many configs.\n");
   addFile(
@@ -109,7 +113,7 @@
   projects.forEach((p) => {
     const slug = String(p.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     const tech = Array.isArray(p.tech) && p.tech.length ? p.tech.join(", ") : "";
-    const link = p.url ? "\n\n" + p.url : "";
+    const link = p.url ? "\n\nRepository: " + p.url : "";
     addFile(
       HOMEP + "/projects/" + slug + ".md",
       "# " + p.name + "\n\n" + p.description + (tech ? "\n\ntech: " + tech : "") + link + "\n"

@@ -7,6 +7,7 @@
     "~": "",
     "~/about": "about/",
     "~/blog": "blogs/",
+    "~/poetry": "poetry/",
   };
 
   function openMusic() {
@@ -18,7 +19,14 @@
   const BLOGS = DATA.blogs || {};
   const HOMEP = SITE.home || "/home/tahoor";
   const USER = SITE.name || "TaHooR";
+  const USERNAME = SITE.username || USER.toLowerCase();
   const HOST = SITE.hostname || "arch";
+  const SHELL = SITE.shell || "zsh";
+  const DESKTOP = SITE.desktop || "Hyprland";
+  const COMPOSITOR = SITE.compositor || "Wayland";
+  const TERMINAL = SITE.terminal || "Alacritty";
+  const EDITOR = SITE.editor || "nvim";
+  const CPU = SITE.cpu || "13th Gen Intel(R) Core(TM) i5";
   Object.keys(BLOGS).forEach((s) => (ROUTE["~/blog/" + s] = BLOGS[s]));
 
   function expand(p) {
@@ -218,6 +226,42 @@
       return line;
     }
 
+    function printRichLine(text, cls) {
+      const line = document.createElement("div");
+      line.className = "line" + (cls ? " " + cls : "");
+      const value = String(text ?? "");
+      const urlRe = /https?:\/\/[^\s<]+/g;
+      let last = 0;
+      let match;
+
+      while ((match = urlRe.exec(value))) {
+        if (match.index > last) {
+          line.appendChild(document.createTextNode(value.slice(last, match.index)));
+        }
+
+        const rawUrl = match[0];
+        const cleanUrl = rawUrl.replace(/[),.;!?]+$/, "");
+        const a = document.createElement("a");
+        a.href = cleanUrl;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = cleanUrl;
+        line.appendChild(a);
+
+        if (rawUrl.length > cleanUrl.length) {
+          line.appendChild(document.createTextNode(rawUrl.slice(cleanUrl.length)));
+        }
+        last = match.index + rawUrl.length;
+      }
+
+      if (last < value.length) {
+        line.appendChild(document.createTextNode(value.slice(last)));
+      }
+
+      output.appendChild(line);
+      return line;
+    }
+
     function printRows(rows) {
   rows.forEach((item) => {
     const title = item.name ?? item[0];
@@ -284,11 +328,11 @@
         return;
       }
       if (kind === "readme") {
-        print("TaHooR's home directory.", "accent");
+        print(USER + "'s home directory.", "accent");
         print("try `ls`, `cd`, `projects`, `skills`, `socials`, or `cat about.md`.");
         return;
       }
-      print("welcome. this is TaHooR's little corner of the web.", "accent");
+      print("welcome. this is " + USER + "'s little corner of the web.", "accent");
       print("poke around with `ls`, `cd`, `tree /etc`, `cat ~/.zshrc`.");
       print("there is no dark side to the moon, really. it's all dark.", "dim");
     }
@@ -303,25 +347,14 @@
       if (n.run === "socials") return HANDLERS.socials();
       
       const lines = fileLines(n);
-const cap = 400;
+      
+      const cap = 400;
 
-lines.slice(0, cap).forEach((line) => {
-  const urlMatch = line.match(/^(https?:\/\/\S+)$/);
+      
+      lines.slice(0, cap).forEach((line) => printRichLine(line));
 
-  if (urlMatch) {
-    const a = document.createElement("a");
-    a.href = urlMatch[1];
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.textContent = urlMatch[1];
-
-    print(a);
-  } else {
-    print(line);
-  }
-});
-
-if (lines.length > cap) {
+      
+      if (lines.length > cap) {
   print(
     "... (" +
       (lines.length - cap) +
@@ -583,6 +616,7 @@ if (lines.length > cap) {
       open(arg) {
         if (!arg) return print("open: missing operand", "err");
         if (arg === "about.md" || arg === "about") return goRoute("~/about");
+        if (arg === "poetry" || arg === "poetry/") {return goRoute("~/poetry");}
         if (arg === "music" || arg === "music/") { print("opening ~/music ...", "ok"); return openMusic(); }
         let p = canon(arg);
         let n = node(p);
@@ -601,16 +635,55 @@ if (lines.length > cap) {
         printRows(PROJECTS);
       },
       skills() {
-        printRows(SKILLS.map((s) => [s.name, s.description]));
+        printRows(SKILLS);
       },
       socials() {
         SOCIALS.forEach((s) => printLink(s.name, s.url));
       },
       poetry() {
-        const poems = DATA.poetry || [];
-        if (!poems.length) return print("poetry: no poems added yet. edit assets/data/poetry.js", "dim");
-        poems.forEach((p) => print((p.title || p.file || "untitled") + (p.date ? " · " + p.date : "")));
-      },
+  const poems = DATA.poetry || [];
+
+  if (!poems.length) {
+    return print(
+      "poetry: no poems added yet. edit assets/data/poetry.js",
+      "dim"
+    );
+  }
+
+  poems.forEach((p) => {
+    const a = document.createElement("a");
+
+    a.href = "#";
+    a.textContent =
+      (p.title || p.file || "untitled") +
+      (p.date ? " · " + p.date : "");
+
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const id = (p.file || "untitled.md").replace(/\.md$/i, "");
+
+      window.location.href =
+        (document.body.dataset.root || "") +
+        "poetry/#" +
+        encodeURIComponent(id);
+    });
+
+    print(a);
+  });
+
+  print("");
+
+  const open = document.createElement("a");
+  open.href = "#";
+  open.textContent = "→ open poetry";
+  open.addEventListener("click", (e) => {
+    e.preventDefault();
+    goRoute("~/poetry");
+  });
+
+  print(open, "accent");
+},
       stats() {
         const stats = DATA.stats || {};
         ["steam", "spotify", "github"].forEach((name) => {
@@ -633,7 +706,7 @@ if (lines.length > cap) {
       },
       hostname() { print(HOST); },
       uptime() { print(" 21:31:07 up  3:14,  1 user,  load average: 0.42, 0.37, 0.29"); },
-      id() { print("uid=1000(TaHooR) gid=100(users) groups=100(users),1(wheel),26(video),27(audio)"); },
+      id() { print(`uid=1000(${USERNAME}) gid=100(users) groups=100(users),1(wheel),26(video),27(audio)`); },
       free() {
         print("               total        used        free      shared  buff/cache   available");
         print("Mem:        16252928     9011204     2143908      612044     5113816     6715308");
@@ -648,16 +721,16 @@ if (lines.length > cap) {
       },
       ps() {
         print("  PID TTY          TIME CMD");
-        print(" 1337 pts/0    00:00:00 zsh");
-        print(" 2048 pts/0    00:00:05 Hyprland");
+        print(` 1337 pts/0    00:00:00 ${SHELL}`);
+        print(` 2048 pts/0    00:00:05 ${DESKTOP}`);
         print(" 2051 pts/0    00:00:02 waybar");
-        print(" 4096 pts/0    00:00:00 alacritty");
+        print(` 4096 pts/0    00:00:00 ${TERMINAL.toLowerCase()}`);
         print(" 8080 pts/0    00:00:00 ps");
       },
       lscpu() {
         print("Architecture:            x86_64");
         print("CPU(s):                  12");
-        print("Model name:              13th Gen Intel(R) Core(TM) i5");
+        print("Model name:              " + CPU);
         print("CPU max MHz:             4500.0000");
         print("Caches:                  L1 544 KiB, L2 5 MiB, L3 12 MiB");
       },
@@ -677,15 +750,15 @@ if (lines.length > cap) {
         print("    inet 100.64.0.42/32 scope global tailscale0");
       },
       env() {
-        print("SHELL=/bin/zsh");
-        print("USER=tahoor");
-        print("HOME=/home/tahoor");
-        print("EDITOR=nvim");
-        print("DE=Hyprland");
-        print("TERM=alacritty");
-        print("XDG_CURRENT_DESKTOP=Hyprland");
+        print("SHELL=" + (SHELL.startsWith("/") ? SHELL : "/bin/" + SHELL));
+        print("USER=" + USERNAME);
+        print("HOME=" + HOMEP);
+        print("EDITOR=" + EDITOR);
+        print("DE=" + DESKTOP);
+        print("TERM=" + TERMINAL.toLowerCase());
+        print("XDG_CURRENT_DESKTOP=" + DESKTOP);
         print("WAYLAND_DISPLAY=wayland-1");
-        print("PATH=/usr/local/bin:/usr/bin:/home/tahoor/.local/bin");
+        print("PATH=/usr/local/bin:/usr/bin:" + HOMEP + "/.local/bin");
       },
       pacman(arg) {
         const parts = argSplit(arg);
@@ -715,7 +788,7 @@ if (lines.length > cap) {
         if (FS["/usr/bin/" + arg] || COMMANDS.includes(arg)) {
           print("/usr/bin/" + arg);
         } else {
-          print("which: no " + arg + " in (/usr/local/bin:/usr/bin:/home/tahoor/.local/bin)", "err");
+          print("which: no " + arg + " in (/usr/local/bin:/usr/bin:" + HOMEP + "/.local/bin)", "err");
         }
       },
       history() {
@@ -783,39 +856,38 @@ if (lines.length > cap) {
       },
       shine() { print("shine on, you crazy diamond", "accent"); },
       neofetch() {
-  const focus = Array.isArray(SITE.focus)
-    ? SITE.focus.join(" · ")
-    : "";
+        const focus = Array.isArray(SITE.focus)
+          ? SITE.focus.join(" · ")
+          : "";
 
-  print(
-    (SITE.os || "Arch Linux") + " x86_64 · " + promptLocation(),
-    "accent"
-  );
+        print(
+          (SITE.os || "Arch Linux") + " x86_64 · " + promptLocation(),
+          "accent"
+        );
 
-  print(
-    "shell: " + (SITE.shell || "zsh") +
-    " · wm: " + (SITE.desktop || "Hyprland") +
-    " · compositor: " + (SITE.compositor || "Wayland") +
-    " · terminal: " + (SITE.terminal || "Alacritty")
-  );
+        print(
+          "shell: " + SHELL +
+          " · wm: " + DESKTOP +
+          " · compositor: " + COMPOSITOR +
+          " · terminal: " + TERMINAL
+        );
 
-  print("focus: " + focus);
+        print("focus: " + focus);
 
-  const frag = document.createDocumentFragment();
+        const frag = document.createDocumentFragment();
+        frag.appendChild(document.createTextNode("the full splash lives on "));
 
-  frag.appendChild(document.createTextNode("the full splash lives on "));
+        const a = document.createElement("a");
+        a.href = "#";
+        a.textContent = "~ (home)";
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          goRoute("~");
+        });
 
-  const a = document.createElement("a");
-  a.href = "#";
-  a.textContent = "~ (home)";
-  a.addEventListener("click", (e) => {
-    e.preventDefault();
-    goRoute("~");
-  });
-
-  frag.appendChild(a);
-  print(frag);
-},
+        frag.appendChild(a);
+        print(frag);
+      },
     };
     HANDLERS.hyfetch = HANDLERS.neofetch;
     HANDLERS.fastfetch = HANDLERS.neofetch;
