@@ -3,10 +3,6 @@
 
   const body = document.body;
   const ROOT = body.dataset.root || "";
-  const USER = "TaHooR";
-  const HOST = "arch";
-  const HOMEP = "/home/tahoor";
-
   const ROUTE = {
     "~": "",
     "~/about": "about/",
@@ -17,17 +13,12 @@
     window.dispatchEvent(new CustomEvent("sidh-open-music"));
   }
 
-  const BLOGS = {
-    "porting-arma-cwa": "blogs/blog-28-06-26/",
-    "cbse-onmark": "blogs/blog-31-05-26/",
-    "aqi-service-jk": "blogs/blog-10-2-26/",
-    "pixel-kernel-bazel": "blogs/blog-14-12-25/",
-    "nix-helper-script": "blogs/blog-18-10-25/",
-    "device-trees-cleanup": "blogs/blog-25-06-25/",
-    "aosp-device-trees": "blogs/blog-22-05-25/",
-    "getting-into-aosp": "blogs/blog-18-05-25/",
-    "dealing-with-aidl": "blogs/blog-17-05-25/",
-  };
+  const DATA = window.TAHOOR_DATA || {};
+  const SITE = DATA.site || {};
+  const BLOGS = DATA.blogs || {};
+  const HOMEP = SITE.home || "/home/tahoor";
+  const USER = SITE.name || "TaHooR";
+  const HOST = SITE.hostname || "arch";
   Object.keys(BLOGS).forEach((s) => (ROUTE["~/blog/" + s] = BLOGS[s]));
 
   function expand(p) {
@@ -46,117 +37,12 @@
   let CWD = expand(body.dataset.cwd || "~");
   const PAGE = expand(body.dataset.cwd || "~");
 
-  /* ---------- virtual filesystem ---------- */
-  const FS = {};
-
-  function addDir(p, extra) {
-    FS[p] = Object.assign({ d: 1 }, extra || {});
-  }
-  function addFile(p, content, extra) {
-    FS[p] = Object.assign({ c: content }, extra || {});
-    let dir = p.slice(0, p.lastIndexOf("/")) || "/";
-    while (dir && !FS[dir]) {
-      addDir(dir);
-      dir = dir.slice(0, dir.lastIndexOf("/")) || "/";
-      if (dir === "") break;
-    }
-  }
-
-  const BINARIES = [
-    "bash", "zsh", "sh", "pacman", "sudo", "fastfetch", "hyfetch",
-    "alacritty", "nvim", "git", "python", "node", "java", "go",
-    "docker", "adb", "fastboot", "htop", "curl", "ssh", "gcc",
-    "g++", "make", "cmake", "gdb", "psql", "redis-cli"
-  ];
-
-  function buildFS() {
-    [
-      "/", "/bin", "/boot", "/dev", "/etc", "/home", HOMEP,
-      "/opt", "/proc", "/run", "/srv", "/sys", "/tmp", "/usr",
-      "/usr/bin", "/var", "/var/log", HOMEP + "/.config",
-      HOMEP + "/.config/hypr", HOMEP + "/.config/waybar"
-    ].forEach((p) => addDir(p));
-
-    addDir("/root", { deny: 1 });
-
-    FS["/bin/sh"] = { ln: "/usr/bin/bash" };
-    FS["/usr/bin/env"] = { bin: 1 };
-
-    addFile("/etc/hostname", "arch\n");
-    addFile(
-      "/etc/os-release",
-      'NAME="Arch Linux"\nID=arch\nPRETTY_NAME="Arch Linux"\nHOME_URL="https://archlinux.org/"\nBUG_REPORT_URL="https://gitlab.archlinux.org/archlinux"\n'
-    );
-    addFile(
-      "/etc/passwd",
-      "root:x:0:0:root:/root:/bin/bash\n" +
-      "tahoor:x:1000:1000:TaHooR:/home/tahoor:/bin/zsh\n"
-    );
-    addFile("/etc/fstab", "# /etc/fstab\n# imaginary, because this is a website\n");
-    addFile(
-      "/etc/pacman.conf",
-      "[options]\nArchitecture = auto\nCheckSpace\n\n" +
-      "[core]\nInclude = /etc/pacman.d/mirrorlist\n\n" +
-      "[extra]\nInclude = /etc/pacman.d/mirrorlist\n"
-    );
-    addFile(
-      "/etc/pacman.d/mirrorlist",
-      "Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch\n"
-    );
-    addFile("/proc/version", "Linux version 6.x-arch1-1 (Arch Linux)\n");
-    addFile(
-      "/proc/cpuinfo",
-      "processor\t: 0\n" +
-      "model name\t: 13th Gen Intel(R) Core(TM) i5\n" +
-      "cpu MHz\t\t: 4500.000\n" +
-      "cache size\t: 12288 KB\n" +
-      "... (11 more processors)\n"
-    );
-    addFile("/proc/uptime", "11487.21 61233.90\n");
-    addFile("/var/log/README", "journalctl has entered the chat.\n");
-    addFile(
-      HOMEP + "/.zshrc",
-      "# TaHooR's zsh config\n" +
-      "export EDITOR=nvim\n" +
-      "export BROWSER=firefox\n" +
-      "alias ll='ls -lah'\n" +
-      "alias gs='git status'\n"
-    );
-    addFile(
-      HOMEP + "/.gitconfig",
-      "[user]\n" +
-      "\tname = TaHooR\n" +
-      "[init]\n" +
-      "\tdefaultBranch = main\n"
-    );
-    addFile(HOMEP + "/.config/README.md", "Arch + Hyprland + way too many configs.\n");
-    addFile(
-      HOMEP + "/.config/hypr/hyprland.conf",
-      "monitor=,preferred,auto,1\n" +
-      "$terminal = alacritty\n" +
-      "$browser = firefox\n"
-    );
-
-    BINARIES.forEach((n) => { FS["/usr/bin/" + n] = { bin: 1 }; });
-
-    if (window.ARCHFS) {
-      Object.keys(window.ARCHFS).forEach((p) => addFile(p, window.ARCHFS[p]));
-    }
-
-    addDir(HOMEP + "/blog", { go: "~/blog" });
-    Object.keys(BLOGS).forEach((s) => {
-      addDir(HOMEP + "/blog/" + s, { go: "~/blog/" + s });
-      addFile(HOMEP + "/blog/" + s + "/README.md", null, { special: "readme" });
-    });
-    addDir(HOMEP + "/music", { music: 1 });
-    addDir(HOMEP + "/projects", { run: "projects" });
-    addDir(HOMEP + "/skills", { run: "skills" });
-    addFile(HOMEP + "/socials", null, { run: "socials" });
-    addFile(HOMEP + "/about.md", null, { special: "about" });
-    addFile(HOMEP + "/README.md", null, { special: "readme" });
-    FS[HOMEP].go = "~";
-  }
-  buildFS();
+  const FS = window.TAHOOR_FS || {};
+  const PROJECTS = DATA.projects || [];
+  const SKILLS = DATA.skills || [];
+  const SOCIALS = DATA.socials || [];
+  const ABOUT = (DATA.about && DATA.about.short) || [];
+  const FORTUNES = DATA.fortunes || [];
 
   function canon(arg) {
     let p = expand(arg);
@@ -188,50 +74,6 @@
       return da - db || a.localeCompare(b);
     });
   }
-
-  const PROJECTS = [
-    ["DevTrack", "Flutter task manager · Spring Boot · PostgreSQL · JWT"],
-    ["Spark", "sports platform · Next.js · Tailwind · Spring Boot · WebSockets"],
-    ["Satellite Tracker", "3D ISS tracker · Three.js · satellite.js · CelesTrak"],
-    ["Gallery", "Flutter gallery · albums · favorites · maps · sharing"],
-    ["CivicPulse / MedIntel", "hackathon projects focused on real-world problems"],
-    ["WonderVault", "map-based travel memories app · Flutter"],
-  ];
-
-  const SKILLS = [
-    ["C / C++", "DSA, systems programming and performance-focused work"],
-    ["Java", "Spring Boot, REST APIs, JPA and backend services"],
-    ["Dart / Flutter", "cross-platform apps, Firebase, Provider and custom UI"],
-    ["Python", "automation, data work, ML experiments and scripting"],
-    ["TypeScript / JavaScript", "React, Next.js, Node.js and web tooling"],
-    ["databases", "PostgreSQL, MySQL and MongoDB"],
-    ["Linux", "Arch Linux, Hyprland, terminal tooling and system tinkering"],
-    ["security", "learning web security, vulnerability research and cybersec"],
-  ];
-
-  const SOCIALS = [
-    ["github", "https://github.com/TaH00R"],
-    ["linkedin", "https://www.linkedin.com/in/x-tahoor-x-36652739a/"],
-    ["instagram", "https://www.instagram.com/tahoor.69/"],
-  ];  
-
-  const ABOUT = [
-    "CS student at IIIT Guwahati.",
-    "building Flutter apps, Spring Boot backends and web projects.",
-    "currently getting deeper into Linux, systems, cybersecurity and Go.",
-    "Arch Linux + Hyprland + terminal enjoyer.",
-  ];
-
-  const FORTUNES = [
-    "there is no dark side of the moon, really. matter of fact, it's all dark.",
-    "talk is cheap. show me the code.  — linus",
-    "an idiot admires complexity, a genius admires simplicity.  — terry a. davis",
-    "shine on, you crazy diamond.",
-    "the only intuitive interface is the nipple. everything else is learned.",
-    "rm -rf / is not a personality trait.",
-    "real programmers count from 0.",
-    "there are only two hard things in cs: cache invalidation and naming things.",
-  ];
 
   const TEASE = {
     mkdir: "mkdir: cannot create directory: Read-only file system (it's a website)",
@@ -484,6 +326,8 @@
         const plain = t.replace(/^~\//, "").replace(/\/$/, "");
         if (plain === "projects") return HANDLERS.projects();
         if (plain === "skills") return HANDLERS.skills();
+        if (plain === "poetry") return HANDLERS.poetry();
+        if (plain === "stats") return HANDLERS.stats();
         if (plain === "socials") return HANDLERS.socials();
         const p = canon(t);
         const n = node(p);
@@ -711,9 +555,28 @@
         if (arg === "about.md") return goRoute("~/about");
         print("xdg-open: no application registered for '" + arg + "'", "err");
       },
-      projects() { printRows(PROJECTS); },
-      skills() { printRows(SKILLS); },
-      socials() { SOCIALS.forEach(([l, h]) => printLink(l, h)); },
+      projects() {
+        printRows(PROJECTS.map((p) => [p.name, p.description]));
+      },
+      skills() {
+        printRows(SKILLS.map((s) => [s.name, s.description]));
+      },
+      socials() {
+        SOCIALS.forEach((s) => printLink(s.name, s.url));
+      },
+      poetry() {
+        const poems = DATA.poetry || [];
+        if (!poems.length) return print("poetry: no poems added yet. edit assets/data/poetry.js", "dim");
+        poems.forEach((p) => print((p.title || p.file || "untitled") + (p.date ? " · " + p.date : "")));
+      },
+      stats() {
+        const stats = DATA.stats || {};
+        ["steam", "spotify", "github"].forEach((name) => {
+          const s = stats[name];
+          if (!s) return;
+          print(name + ": " + (s.enabled ? "configured" : "not configured"));
+        });
+      },
       pwd() { print(CWD); },
       whoami() { print(USER); },
       echo(arg) { print(arg || ""); },
@@ -843,7 +706,7 @@
         print("                ||----w |");
         print("                ||     ||");
       },
-      fortune() { print(FORTUNES[Math.floor(Math.random() * FORTUNES.length)]); },
+      fortune() { if (FORTUNES.length) print(FORTUNES[Math.floor(Math.random() * FORTUNES.length)]); },
       man(arg) { print("No manual entry for " + (arg || "that") + " — try 'help' instead.", "dim"); },
       su() { print("Password: ", "dim"); print("su: Authentication failure", "err"); },
       ping(arg) {
@@ -902,7 +765,7 @@
     const COMMANDS = [
       "help", "ls", "cd", "cat", "less", "bat", "head", "tail", "wc", "grep",
       "find", "tree", "du", "file", "stat", "realpath", "open", "xdg-open",
-      "projects", "skills", "socials", "pwd", "clear", "whoami", "echo", "date",
+      "projects", "skills", "poetry", "stats", "socials", "pwd", "clear", "whoami", "echo", "date",
       "neofetch", "hyfetch", "fastfetch", "uname", "hostname", "uptime", "id",
       "free", "df", "ps", "lscpu", "lsblk", "ip", "env", "which", "history",
       "cal", "cowsay", "fortune", "man", "ping", "su", "adb", "pacman",

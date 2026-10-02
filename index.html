@@ -77,32 +77,16 @@
 
         <div class="home-mobile">
           <div class="prompt"><span class="p-loc">TaHooR@arch</span> <span class="p-path">~</span> <span class="p-sym">$</span> <span class="p-cmd">cat <span class="arg">about.md</span></span></div>
-          <p class="out">CS student at IIIT Guwahati.</p>
-          <p class="out">building Flutter apps, Spring Boot backends and web projects.</p>
-          <p class="out">currently getting deeper into Linux, systems, cybersecurity and Go.</p>
-          <p class="out">Arch Linux + Hyprland + terminal enjoyer.</p>
+          <div data-content="about-short"></div>
 
           <div class="prompt"><span class="p-loc">TaHooR@arch</span> <span class="p-path">~</span> <span class="p-sym">$</span> <span class="p-cmd">ls <span class="arg">~/projects</span></span></div>
-          <ul class="rows">
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">DevTrack</div><div class="row-sub">Flutter task manager · Spring Boot · PostgreSQL · JWT</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Spark</div><div class="row-sub">sports platform · Next.js · Tailwind · Spring Boot · WebSockets</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Satellite Tracker</div><div class="row-sub">3D ISS tracker · Three.js · satellite.js · CelesTrak</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Gallery</div><div class="row-sub">Flutter gallery · albums · favorites · maps · sharing</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">CivicPulse / MedIntel</div><div class="row-sub">hackathon projects focused on real-world problems</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">WonderVault</div><div class="row-sub">map-based travel memories app · Flutter</div></div></li>
-          </ul>
+          <ul class="rows" data-content="projects"></ul>
 
           <div class="prompt"><span class="p-loc">TaHooR@arch</span> <span class="p-path">~</span> <span class="p-sym">$</span> <span class="p-cmd">ls <span class="arg">~/skills</span></span></div>
-          <ul class="rows">
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">C / C++</div><div class="row-sub">DSA, systems programming and performance-focused work</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Java</div><div class="row-sub">Spring Boot, REST APIs, JPA and backend services</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Dart / Flutter</div><div class="row-sub">cross-platform apps, Firebase, Provider and custom UI</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Python</div><div class="row-sub">automation, data work, ML experiments and scripting</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">TypeScript / JavaScript</div><div class="row-sub">React, Next.js, Node.js and web tooling</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">databases</div><div class="row-sub">PostgreSQL, MySQL and MongoDB</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">Linux</div><div class="row-sub">Arch Linux, Hyprland, terminal tooling and system tinkering</div></div></li>
-            <li class="row"><span class="dot" aria-hidden="true"></span><div><div class="row-title">security</div><div class="row-sub">learning web security, vulnerability research and cybersec</div></div></li>
-          </ul>
+          <ul class="rows" data-content="skills"></ul>
+
+          <div class="prompt"><span class="p-loc">TaHooR@arch</span> <span class="p-path">~</span> <span class="p-sym">$</span> <span class="p-cmd">ls <span class="arg">~/</span></span></div>
+          <p class="out">projects · skills · poetry · stats · music · blog · socials</p>
         </div>
 
         <div class="cmd">
@@ -113,22 +97,30 @@
             <span class="p-sym">$</span>
             <input class="cmd-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="terminal command input" />
           </div>
-          <div class="cmd-hint">type <kbd>help</kbd> to look around. try <kbd>ls</kbd>, <kbd>projects</kbd>, <kbd>cat about.md</kbd>, <kbd>cd blog</kbd>.</div>
+          <div class="cmd-hint">type <kbd>help</kbd> to look around. try <kbd>ls</kbd>, <kbd>projects</kbd>, <kbd>poetry</kbd>, <kbd>stats</kbd>, <kbd>cat about.md</kbd>.</div>
         </div>
       </div>
     </section>
+  </main>
 
   <footer class="footer footer-mobile">
-    <div class="footer-socials">
-      <a class="icon" href="https://github.com/TaH00R" target="_blank" rel="noopener" aria-label="github"><i class="fa-brands fa-github"></i></a>
-      <a class="icon" href="https://www.linkedin.com/in/x-tahoor-x-36652739a/" target="_blank" rel="noopener" aria-label="linkedin"><i class="fa-brands fa-linkedin"></i></a>
-      <a class="icon" href="https://www.instagram.com/tahoor.69/" target="_blank" rel="noopener" aria-label="instagram"><i class="fa-brands fa-instagram"></i></a>
-    </div>
+    <div class="footer-socials" data-content="socials"></div>
     <p>&copy; 2026 &middot; <a href="https://github.com/TaH00R" target="_blank" rel="noopener">TaHooR</a> &middot; powered by <a href="https://www.catppuccin.com/" target="_blank" rel="noopener">catppuccin</a></p>
 
   </footer>
 
-  <script src="assets/js/archfs.js"></script>
+  <script src="assets/data/site.js"></script>
+  <script src="assets/data/projects.js"></script>
+  <script src="assets/data/skills.js"></script>
+  <script src="assets/data/socials.js"></script>
+  <script src="assets/data/about.js"></script>
+  <script src="assets/data/poetry.js"></script>
+  <script src="assets/data/stats.js"></script>
+  <script src="assets/data/blogs.js"></script>
+  <script src="assets/data/fortunes.js"></script>
+  <script src="assets/data/music.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/filesystem.js"></script>
   <script src="assets/js/terminal.js"></script>
   <script src="assets/js/desktop.js"></script>
 </body>

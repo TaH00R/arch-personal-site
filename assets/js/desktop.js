@@ -3,6 +3,7 @@
 
   const body = document.body;
   const ROOT = body.dataset.root || "";
+  const DATA = window.TAHOOR_DATA || {};
   const HOME = body.dataset.cwd === "~";
   const isMobile = () => window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
 
@@ -35,60 +36,18 @@
     '<path d="M3 19h42v20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V19z" fill="#74a0f0"></path>' +
     "</svg>";
 
-  const TRACKS = [
-    { file: "shine_on_you_crazy_diamond.mp3", title: "Shine On You Crazy Diamond", artist: "Pink Floyd", album: "Wish You Were Here", genre: "Progressive Rock", dur: "26:01", src: "assets/audio/shineonyoucrazydiamond-preview.mp3", art: "assets/images/wishyouwerehere.jpg" },
-    { file: "fearless.mp3", title: "Fearless", artist: "Pink Floyd", album: "Meddle", genre: "Progressive Rock", dur: "6:08", src: "assets/audio/fearless-preview.mp3", art: "assets/images/meddle.jpg" },
-    { file: "echoes.mp3", title: "Echoes", artist: "Pink Floyd", album: "Meddle", genre: "Progressive Rock", dur: "23:31", src: "assets/audio/echoes-preview.mp3", art: "assets/images/meddle.jpg" },
-    { file: "time.mp3", title: "Time", artist: "Pink Floyd", album: "The Dark Side of the Moon", genre: "Progressive Rock", dur: "6:53", src: "assets/audio/time-preview.mp3", art: "assets/images/thedarksideofthemoon.jpg" },
-    { file: "money.mp3", title: "Money", artist: "Pink Floyd", album: "The Dark Side of the Moon", genre: "Progressive Rock", dur: "6:22", src: "assets/audio/money-preview.mp3", art: "assets/images/thedarksideofthemoon.jpg" },
-    { file: "the_great_gig_in_the_sky.mp3", title: "The Great Gig In The Sky", artist: "Pink Floyd", album: "The Dark Side of the Moon", genre: "Progressive Rock", dur: "4:44", src: "assets/audio/the-great-gig-in-the-sky-preview.mp3", art: "assets/images/thedarksideofthemoon.jpg" },
-    { file: "cheerleader.mp3", title: "Cheerleader", artist: "Porter Robinson", album: "Smile! :D", genre: "Electropop", dur: "3:57", src: "assets/audio/cheerleader-preview.mp3", art: "assets/images/cheerleader.jpg" },
-    { file: "musician.mp3", title: "Musician", artist: "Porter Robinson", album: "Nurture", genre: "Electropop", dur: "3:58", src: "assets/audio/musician-preview.mp3", art: "assets/images/musician.jpg" },
-    { file: "backwoods.mp3", title: "Backwoods", artist: "Kill Bill: The Rapper", album: "RAMONA", genre: "Indie Rap", dur: "3:04", src: "assets/audio/backwoods-preview.mp3", art: "assets/images/backwoods.jpg" },
-    { file: "xtal.mp3", title: "Xtal", artist: "Aphex Twin", album: "Selected Ambient Works", genre: "Ambient Techno", dur: "4:51", src: "assets/audio/xtal-preview.mp3", art: "assets/images/xtal.jpg" },
-    { file: "color_your_night.mp3", title: "Color Your Night", artist: "Lotus Juice", album: "Persona 3 Reload", genre: "Jazz Fusion", dur: "3:44", src: "assets/audio/color-your-night-preview.mp3", art: "assets/images/coloryournight.jpg" },
-    { file: "tong_poo.mp3", title: "Tong Poo", artist: "Yellow Magic Orchestra", album: "Yellow Magic Orchestra", genre: "Synthpop", dur: "6:15", src: "assets/audio/tongpoo-preview.mp3", art: "assets/images/tongpoo.jpg" },
-    { file: "roundabout.mp3", title: "Roundabout", artist: "Yes", album: "Fragile", genre: "Progressive Rock", dur: "8:39", src: "assets/audio/roundabout-preview.mp3", art: "assets/images/roundabout.jpg" },
-    { file: "i_really_want_to_stay_at_your_house.mp3", title: "I Really Want to Stay at Your House", artist: "Rosa Walton", album: "Cyberpunk 2077: Radio, Vol. 2", genre: "Synthpop", dur: "4:06", src: "assets/audio/i-really-want-to-stay-preview.mp3", art: "assets/images/i-really-want-to-stay.jpg" },
-    { file: "whos_ready_for_tomorrow.mp3", title: "Who's Ready for Tomorrow", artist: "Rat Boy & IBDY", album: "Cyberpunk 2077: Radio, Vol. 2", genre: "Electronic", dur: "1:56", src: "assets/audio/whos-ready-for-tomorrow-preview.mp3", art: "assets/images/whos-ready-for-tomorrow.jpg" },
-    { file: "theme_of_ken.mp3", title: "Theme of Ken", artist: "Capcom Sound Team", album: "Street Fighter V OST", genre: "Game Soundtrack", dur: "3:04", src: "assets/audio/theme-of-ken-preview.mp3", art: "assets/images/theme-of-ken.jpg" },
-    { file: "shelter.mp3", title: "Shelter", artist: "Porter Robinson & Madeon", album: "Shelter", genre: "Future Bass", dur: "3:38", src: "assets/audio/shelter-preview.mp3", art: "assets/images/shelter.jpg" },
-    { file: "genes_rock_a_bye.mp3", title: "Gene's Rock-A-Bye", artist: "Masafumi Takada", album: "God Hand OST", genre: "Game Soundtrack", dur: "2:57", src: "assets/audio/genes-rock-a-bye-preview.mp3", art: "assets/images/genes-rock-a-bye.jpg" },
-    { file: "echoes_live_at_pompeii.mp3", title: "Echoes (Live at Pompeii)", artist: "Pink Floyd", album: "At Pompeii MCMLXXII", genre: "Progressive Rock", dur: "11:55", src: "assets/audio/echoes-pompeii-preview.mp3", art: "assets/images/echoes-pompeii.jpg" },
-    { file: "gruppa_krovi.mp3", title: "Группа крови", artist: "Кино", album: "Группа крови", genre: "Post-Punk", dur: "4:47", src: "assets/audio/gruppa-krovi-preview.mp3", art: "assets/images/gruppa-krovi.jpg" },
-  ];
+  const TRACKS = DATA.music || [];
 
   const DOCS = {
     "projects.md": {
       heading: "# things i've worked on",
-      items: [
-        ["DevTrack", "Flutter task manager · Spring Boot · PostgreSQL · JWT"],
-        ["Freshers Cup", "sports platform · Next.js · Tailwind · Spring Boot · WebSockets"],
-        ["Satellite Tracker", "3D ISS tracker · Three.js · satellite.js · CelesTrak"],
-        ["Gallery", "Flutter gallery · albums · favorites · maps · sharing"],
-        ["ReliefChain / MedIntel", "hackathon projects focused on real-world problems"],
-      ],
+      items: (DATA.projects || []).map((p) => [p.name, p.description]),
     },
     "skills.md": {
       heading: "# a collection of my skills",
-      items: [
-        ["C / C++", "DSA, systems programming and performance-focused work"],
-        ["Java", "Spring Boot, REST APIs, JPA and backend services"],
-        ["Dart / Flutter", "cross-platform apps, Firebase, Provider and custom UI"],
-        ["Python", "automation, data work, ML experiments and scripting"],
-        ["TypeScript / JavaScript", "React, Next.js, Node.js and web tooling"],
-        ["databases", "PostgreSQL, MySQL and MongoDB"],
-        ["Linux", "Arch Linux, Hyprland, terminal tooling and system tinkering"],
-        ["security", "learning web security, vulnerability research and cybersec"],
-      ],
+      items: (DATA.skills || []).map((s) => [s.name, s.description]),
     },
   };
-
-  const SOCIALS = [
-    ["github", "https://github.com/TaH00R", "fa-github"],
-    ["linkedin", "https://www.linkedin.com/in/x-tahoor-x-36652739a/", "fa-linkedin"],
-    ["instagram", "https://www.instagram.com/tahoor.69/", "fa-instagram"],
-  ];
 
   const DOC_SVG =
     '<svg viewBox="0 0 48 48" aria-hidden="true">' +
@@ -104,6 +63,8 @@
     '<path d="M5 11h13l4 4h21a2 2 0 0 1 2 2v22a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V13a2 2 0 0 1 2-2z" fill="#f9e2af" stroke="#6c7086"></path>' +
     '<path d="M3 19h42v20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V19z" fill="#f0d68a"></path>' +
     "</svg>";
+
+  const SOCIALS = DATA.socials || [];
 
   const PLAYLIST = TRACKS.map((t) => Object.assign({}, t, { src: ROOT + t.src, art: ROOT + t.art }));
 
@@ -678,7 +639,7 @@
       return;
     }
     const items = SOCIALS
-      .map(([label, href, ic]) => '<a class="soc-item" href="' + href + '" target="_blank" rel="noopener"><span class="soc-ic"><i class="fa-brands ' + ic + '"></i></span><span class="soc-label">' + label + "</span></a>")
+      .map((s) => '<a class="soc-item" href="' + s.url + '" target="_blank" rel="noopener"><span class="soc-ic"><i class="fa-brands ' + s.icon + '"></i></span><span class="soc-label">' + s.name + "</span></a>")
       .join("");
     const el = document.createElement("section");
     el.className = "window socialswin";
