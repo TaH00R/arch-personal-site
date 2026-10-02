@@ -219,11 +219,29 @@
     }
 
     function printRows(rows) {
-      rows.forEach(([title, sub]) => {
-        print(title, "rtitle");
-        print(sub, "rsub");
-      });
+  rows.forEach((item) => {
+    const title = item.name ?? item[0];
+    const sub = item.description ?? item[1];
+    const url = item.url ?? item[2];
+
+    if (url) {
+      const frag = document.createDocumentFragment();
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = title;
+
+      frag.appendChild(a);
+      print(frag, "rtitle");
+    } else {
+      print(title, "rtitle");
     }
+
+    print(sub, "rsub");
+  });
+}
 
     function printLink(label, href) {
       const frag = document.createDocumentFragment();
@@ -283,10 +301,34 @@
       if (n.ln) return print(FS[n.ln] ? fileLines(FS[n.ln]).join("\n") : "(symlink to " + n.ln + ")");
       if (n.special) return printSpecial(n.special);
       if (n.run === "socials") return HANDLERS.socials();
+      
       const lines = fileLines(n);
-      const cap = 400;
-      lines.slice(0, cap).forEach((l) => print(l));
-      if (lines.length > cap) print("... (" + (lines.length - cap) + " more lines — this file is huge)", "dim");
+const cap = 400;
+
+lines.slice(0, cap).forEach((line) => {
+  const urlMatch = line.match(/^(https?:\/\/\S+)$/);
+
+  if (urlMatch) {
+    const a = document.createElement("a");
+    a.href = urlMatch[1];
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = urlMatch[1];
+
+    print(a);
+  } else {
+    print(line);
+  }
+});
+
+if (lines.length > cap) {
+  print(
+    "... (" +
+      (lines.length - cap) +
+      " more lines — this file is huge)",
+    "dim"
+  );
+}
     }
 
     let streaming = false;
@@ -556,7 +598,7 @@
         print("xdg-open: no application registered for '" + arg + "'", "err");
       },
       projects() {
-        printRows(PROJECTS.map((p) => [p.name, p.description]));
+        printRows(PROJECTS);
       },
       skills() {
         printRows(SKILLS.map((s) => [s.name, s.description]));
@@ -741,18 +783,39 @@
       },
       shine() { print("shine on, you crazy diamond", "accent"); },
       neofetch() {
-        print("Arch Linux x86_64 · " + promptLocation(), "accent");
-        print("shell: zsh · wm: Hyprland · compositor: Wayland · terminal: Alacritty");
-        print("focus: Flutter · Spring Boot · Next.js · Go · C++ · security");
-        const frag = document.createDocumentFragment();
-        frag.appendChild(document.createTextNode("the full splash lives on "));
-        const a = document.createElement("a");
-        a.href = "#";
-        a.textContent = "~ (home)";
-        a.addEventListener("click", (e) => { e.preventDefault(); goRoute("~"); });
-        frag.appendChild(a);
-        print(frag);
-      },
+  const focus = Array.isArray(SITE.focus)
+    ? SITE.focus.join(" · ")
+    : "";
+
+  print(
+    (SITE.os || "Arch Linux") + " x86_64 · " + promptLocation(),
+    "accent"
+  );
+
+  print(
+    "shell: " + (SITE.shell || "zsh") +
+    " · wm: " + (SITE.desktop || "Hyprland") +
+    " · compositor: " + (SITE.compositor || "Wayland") +
+    " · terminal: " + (SITE.terminal || "Alacritty")
+  );
+
+  print("focus: " + focus);
+
+  const frag = document.createDocumentFragment();
+
+  frag.appendChild(document.createTextNode("the full splash lives on "));
+
+  const a = document.createElement("a");
+  a.href = "#";
+  a.textContent = "~ (home)";
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    goRoute("~");
+  });
+
+  frag.appendChild(a);
+  print(frag);
+},
     };
     HANDLERS.hyfetch = HANDLERS.neofetch;
     HANDLERS.fastfetch = HANDLERS.neofetch;

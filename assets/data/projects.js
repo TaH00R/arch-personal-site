@@ -5,7 +5,7 @@
       name: "DevTrack",
       description: "Flutter task manager · Spring Boot · PostgreSQL · JWT",
       tech: ["Flutter", "Spring Boot", "PostgreSQL", "JWT"],
-      url: "",
+      url: "https://github.com/TaH00R/devtrack",
     },
     {
       name: "Freshers Cup",

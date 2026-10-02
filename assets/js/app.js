@@ -45,12 +45,39 @@
   }
 
   function init() {
-    renderRows(document.querySelector('[data-content="projects"]'), DATA.projects);
-    renderRows(document.querySelector('[data-content="skills"]'), DATA.skills);
-    renderSocials(document.querySelector('[data-content="socials"]'));
-    renderAbout(document.querySelector('[data-content="about-short"]'), DATA.about && DATA.about.short);
-    renderAbout(document.querySelector('[data-content="about-long"]'), DATA.about && DATA.about.long);
-  }
+  renderRows(
+    document.querySelector('[data-content="projects"]'),
+    DATA.projects
+  );
+
+  renderRows(
+    document.querySelector('[data-content="skills"]'),
+    DATA.skills
+  );
+
+  renderSocials(
+    document.querySelector('[data-content="socials"]')
+  );
+
+  renderAbout(
+    document.querySelector('[data-content="about-short"]'),
+    DATA.about && DATA.about.short
+  );
+
+  renderAbout(
+    document.querySelector('[data-content="about-long"]'),
+    DATA.about && DATA.about.long
+  );
+
+  document.querySelectorAll("[data-site]").forEach((el) => {
+    const key = el.dataset.site;
+    const value = DATA.site?.[key];
+
+    el.textContent = Array.isArray(value)
+      ? value.join(" · ")
+      : value ?? "";
+  });
+}
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
