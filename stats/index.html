@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>stats • TaHooR</title>
+
+  <meta
+    name="description"
+    content="Live GitHub, LeetCode and Codeforces statistics for TaHooR."
+  />
+
+  <meta
+    name="theme-color"
+    content="#1e1e2e"
+  />
+
+  <link
+    rel="stylesheet"
+    href="../assets/css/style.css"
+  />
+
+  <link
+    rel="stylesheet"
+    href="../assets/css/stats.css"
+  />
+</head>
+
+
+<body
+  data-cwd="~/stats"
+  data-root="../"
+>
+
+  <div
+    class="wallpaper"
+    aria-hidden="true"
+  ></div>
+
+
+  <a
+    class="skip-link"
+    href="#main"
+  >
+    Skip to main content
+  </a>
+
+
+  <!-- =========================================================
+       TOP PANEL
+       ========================================================= -->
+
+  <header class="panel">
+
+    <div class="panel-left">
+
+      <a
+        class="panel-brand"
+        href="../"
+      >
+        TaHooR
+      </a>
+
+
+      <ul class="workspaces">
+
+        <li>
+          <a href="../">
+            <span class="ws-num">1</span>
+            home
+          </a>
+        </li>
+
+
+        <li>
+          <a href="../about/">
+            <span class="ws-num">2</span>
+            about
+          </a>
+        </li>
+
+
+        <li>
+          <a href="../blog/">
+            <span class="ws-num">3</span>
+            blog
+          </a>
+        </li>
+
+
+        <li>
+          <a href="../poetry/">
+            <span class="ws-num">4</span>
+            poetry
+          </a>
+        </li>
+
+        <li>
+          <a aria-current="page" href="">
+            <span class="ws-num">5</span>
+            stats
+          </a>
+
+      </ul>
+
+    </div>
+
+
+    <div class="panel-center">
+
+      <span>
+
+        &copy; 2026 &middot;
+
+        <a
+          href="https://github.com/TaH00R"
+          target="_blank"
+          rel="noopener"
+        >
+          TaHooR
+        </a>
+
+        &middot; running on
+        <span>arch btw</span>
+
+      </span>
+
+    </div>
+
+
+    <div class="panel-right">
+
+      <span
+        class="panel-swatches"
+        aria-hidden="true"
+      >
+        <i class="sw-red"></i>
+        <i class="sw-yellow"></i>
+        <i class="sw-green"></i>
+        <i class="sw-blue"></i>
+        <i class="sw-mauve"></i>
+      </span>
+
+
+      <span class="panel-clock"></span>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================================================
+       STATS WORKSPACE
+       ========================================================= -->
+
+  <main
+    id="main"
+    class="stats-page"
+  >
+
+    <section class="stats-terminal">
+
+
+      <!-- =======================================================
+           TERMINAL TITLE BAR
+           ======================================================= -->
+
+      <div class="term-titlebar">
+
+        <span
+          class="term-dots"
+          aria-hidden="true"
+        >
+          <i class="dot-red"></i>
+          <i class="dot-yellow"></i>
+          <i class="dot-green"></i>
+        </span>
+
+
+        <span class="term-title">
+
+          <b>TaHooR@arch</b>: ~/stats
+
+        </span>
+
+
+        <span></span>
+
+      </div>
+
+
+      <!-- =======================================================
+           TERMINAL BODY
+           ======================================================= -->
+
+      <div class="term-body">
+
+
+        <div class="stats-shell">
+
+
+          <!-- ===================================================
+               HEADER
+               =================================================== -->
+
+          <header class="stats-header">
+
+            <div class="stats-heading">
+
+              <p class="stats-eyebrow">
+                ~/stats
+              </p>
+
+
+              <h1>
+                LIVE DEVELOPER STATS
+              </h1>
+
+
+              <p>
+                live data from GitHub, LeetCode and Codeforces
+              </p>
+
+            </div>
+
+
+            <div class="stats-actions">
+
+              <span
+                id="globalStatus"
+                class="stats-status loading"
+              >
+
+                <span
+                  class="stats-status-dot"
+                ></span>
+
+                loading
+
+              </span>
+
+
+              <button
+                id="refreshStats"
+                class="stats-refresh"
+                type="button"
+              >
+                ↻ refresh
+              </button>
+
+            </div>
+
+          </header>
+
+
+          <!-- ===================================================
+               SERVICE CARDS
+               =================================================== -->
+
+          <div class="stats-grid">
+
+
+            <!-- =================================================
+                 GITHUB
+                 ================================================= -->
+
+            <section
+              id="githubCard"
+              class="stats-card"
+              aria-labelledby="githubTitle"
+            >
+
+              <div class="stats-card-header">
+
+                <div class="stats-service">
+
+                  <div class="stats-service-mark">
+                    GH
+                  </div>
+
+
+                  <div class="stats-service-copy">
+
+                    <div
+                      id="githubTitle"
+                      class="stats-service-name"
+                    >
+                      GitHub
+                    </div>
+
+
+                    <div
+                      id="githubUser"
+                      class="stats-service-user"
+                    >
+                      loading...
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <span
+                  id="githubStatus"
+                  class="stats-online"
+                >
+                  live
+                </span>
+
+              </div>
+
+
+              <div
+                id="githubContent"
+                class="stats-placeholder"
+              >
+
+                <div>
+
+                  <strong>
+                    fetching GitHub...
+                  </strong>
+
+                  profile + contributions
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 LEETCODE
+                 ================================================= -->
+
+            <section
+              id="leetcodeCard"
+              class="stats-card"
+              aria-labelledby="leetcodeTitle"
+            >
+
+              <div class="stats-card-header">
+
+                <div class="stats-service">
+
+                  <div class="stats-service-mark">
+                    LC
+                  </div>
+
+
+                  <div class="stats-service-copy">
+
+                    <div
+                      id="leetcodeTitle"
+                      class="stats-service-name"
+                    >
+                      LeetCode
+                    </div>
+
+
+                    <div
+                      id="leetcodeUser"
+                      class="stats-service-user"
+                    >
+                      loading...
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <span
+                  id="leetcodeStatus"
+                  class="stats-online"
+                >
+                  live
+                </span>
+
+              </div>
+
+
+              <div
+                id="leetcodeContent"
+                class="stats-placeholder"
+              >
+
+                <div>
+
+                  <strong>
+                    fetching LeetCode...
+                  </strong>
+
+                  problems + activity + contests
+
+                </div>
+
+              </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CODEFORCES
+                 ================================================= -->
+
+            <section
+              id="codeforcesCard"
+              class="stats-card"
+              aria-labelledby="codeforcesTitle"
+            >
+
+              <div class="stats-card-header">
+
+                <div class="stats-service">
+
+                  <div class="stats-service-mark">
+                    CF
+                  </div>
+
+
+                  <div class="stats-service-copy">
+
+                    <div
+                      id="codeforcesTitle"
+                      class="stats-service-name"
+                    >
+                      Codeforces
+                    </div>
+
+
+                    <div
+                      id="codeforcesUser"
+                      class="stats-service-user"
+                    >
+                      loading...
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <span
+                  id="codeforcesStatus"
+                  class="stats-online"
+                >
+                  live
+                </span>
+
+              </div>
+
+
+              <div
+                id="codeforcesContent"
+                class="stats-placeholder"
+              >
+
+                <div>
+
+                  <strong>
+                    fetching Codeforces...
+                  </strong>
+
+                  rating + contests
+
+                </div>
+
+              </div>
+
+            </section>
+
+          </div>
+
+
+          <!-- ===================================================
+               FOOTER
+               =================================================== -->
+
+          <footer class="stats-footer">
+
+            <span>
+              ● live · cached client-side for 5 minutes
+            </span>
+
+
+            <span class="stats-command">
+              stats --github --leetcode --codeforces
+            </span>
+
+          </footer>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================
+       SITE DATA
+       ========================================================= -->
+
+  <script src="../assets/data/site.js"></script>
+  <script src="../assets/data/projects.js"></script>
+  <script src="../assets/data/skills.js"></script>
+  <script src="../assets/data/socials.js"></script>
+  <script src="../assets/data/about.js"></script>
+  <script src="../assets/data/poetry.js"></script>
+  <script src="../assets/data/stats.js"></script>
+  <script src="../assets/data/blogs.js"></script>
+  <script src="../assets/data/fortunes.js"></script>
+  <script src="../assets/data/music.js"></script>
+
+
+  <!-- =========================================================
+       SITE JS
+       ========================================================= -->
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/filesystem.js"></script>
+  <script src="../assets/js/terminal.js"></script>
+
+  <!-- IMPORTANT:
+       Do NOT load desktop.js here.
+       The stats page is a dashboard, not a draggable desktop window.
+  -->
+
+  <script src="../assets/js/stats.js"></script>
+
+
+  <!-- =========================================================
+       STATS RENDERER
+       ========================================================= -->
+
+  <script>
+    (() => {
+      "use strict";
+
+
+      /* =======================================================
+         ELEMENT HELPERS
+         ======================================================= */
+
+      const $ = (selector) =>
+        document.querySelector(selector);
+
+
+      const githubCard =
+        $("#githubCard");
+
+      const leetcodeCard =
+        $("#leetcodeCard");
+
+      const codeforcesCard =
+        $("#codeforcesCard");
+
+
+      const githubContent =
+        $("#githubContent");
+
+      const leetcodeContent =
+        $("#leetcodeContent");
+
+      const codeforcesContent =
+        $("#codeforcesContent");
+
+
+      const githubUser =
+        $("#githubUser");
+
+      const leetcodeUser =
+        $("#leetcodeUser");
+
+      const codeforcesUser =
+        $("#codeforcesUser");
+
+
+      const githubStatus =
+        $("#githubStatus");
+
+      const leetcodeStatus =
+        $("#leetcodeStatus");
+
+      const codeforcesStatus =
+        $("#codeforcesStatus");
+
+
+      const globalStatus =
+        $("#globalStatus");
+
+      const refreshButton =
+        $("#refreshStats");
+
+
+      /* =======================================================
+         HELPERS
+         ======================================================= */
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+
+      function formatNumber(value) {
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+          return "0";
+        }
+
+        return new Intl.NumberFormat(
+          "en-IN"
+        ).format(number);
+      }
+
+
+      function formatDate(value) {
+        if (!value) {
+          return "unknown";
+        }
+
+        const date =
+          new Date(value);
+
+        if (
+          Number.isNaN(
+            date.getTime()
+          )
+        ) {
+          return "unknown";
+        }
+
+        return date.toLocaleString(
+          [],
+          {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+      }
+
+
+      function safeUrl(value) {
+        const url =
+          String(value ?? "")
+            .trim();
+
+        if (
+          !url ||
+          !/^https?:\/\//i.test(url)
+        ) {
+          return "#";
+        }
+
+        return url;
+      }
+
+
+      function setGlobalStatus(
+        state,
+        text
+      ) {
+        globalStatus.className =
+          `stats-status ${state}`;
+
+        globalStatus.innerHTML = `
+          <span
+            class="stats-status-dot"
+          ></span>
+
+          ${escapeHtml(text)}
+        `;
+      }
+
+
+      function setServiceStatus(
+        element,
+        ok
+      ) {
+        if (!element) {
+          return;
+        }
+
+        element.className =
+          ok
+            ? "stats-online"
+            : "stats-online stats-offline";
+
+        element.textContent =
+          ok
+            ? "live"
+            : "offline";
+      }
+
+
+      function placeholder(
+        title,
+        message
+      ) {
+        return `
+          <div class="stats-placeholder-inner">
+
+            <strong>
+              ${escapeHtml(title)}
+            </strong>
+
+            <span>
+              ${escapeHtml(message)}
+            </span>
+
+          </div>
+        `;
+      }
+
+
+      function profileFooter(
+        updatedAt,
+        profile
+      ) {
+        return `
+
+          <div class="stats-card-footer">
+
+            <span class="stats-updated">
+              updated ${escapeHtml(
+                formatDate(updatedAt)
+              )}
+            </span>
+
+
+            ${
+              profile
+                ? `
+                  <a
+                    class="stats-open"
+                    href="${escapeHtml(
+                      safeUrl(profile)
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    open profile ↗
+                  </a>
+                `
+                : ""
+            }
+
+          </div>
+
+        `;
+      }
+
+
+      /* =======================================================
+         CONTRIBUTION HEATMAP
+         ======================================================= */
+
+      function buildContributionHeatmap(
+        days,
+        options = {}
+      ) {
+
+        const prefix =
+          options.prefix ||
+          "github";
+
+
+        if (
+          !Array.isArray(days) ||
+          days.length === 0
+        ) {
+          return Array.from(
+            { length: 365 },
+            () => `
+              <span
+                class="${prefix}-day level-0"
+              ></span>
+            `
+          ).join("");
+        }
+
+
+        const sorted =
+          [...days].sort(
+            (a, b) =>
+              new Date(a.date) -
+              new Date(b.date)
+          );
+
+
+        const firstDate =
+          new Date(
+            sorted[0].date
+          );
+
+
+        const offset =
+          firstDate.getDay();
+
+
+        const html = [];
+
+
+        for (
+          let i = 0;
+          i < offset;
+          i++
+        ) {
+
+          html.push(`
+            <span
+              class="${prefix}-day spacer"
+            ></span>
+          `);
+
+        }
+
+
+        for (
+          const day of sorted
+        ) {
+
+          const count =
+            Number(day.count) || 0;
+
+
+          const level =
+            Math.max(
+              0,
+              Math.min(
+                4,
+                Number(day.level) || 0
+              )
+            );
+
+
+          html.push(`
+
+            <span
+              class="${prefix}-day level-${level}"
+              title="${escapeHtml(
+                `${count} submissions · ${day.date}`
+              )}"
+              aria-label="${escapeHtml(
+                `${count} submissions on ${day.date}`
+              )}"
+            ></span>
+
+          `);
+
+        }
+
+
+        return html.join("");
+      }
+
+
+      /* =======================================================
+         CODEFORCES RATING GRAPH
+         ======================================================= */
+
+      function buildRatingChart(
+        history
+      ) {
+
+        if (
+          !Array.isArray(history) ||
+          history.length < 2
+        ) {
+          return `
+            <div class="chart-empty">
+              not enough contest history
+            </div>
+          `;
+        }
+
+
+        const width = 560;
+        const height = 190;
+
+        const paddingX = 12;
+        const paddingY = 14;
+
+
+        const values =
+          history.map(
+            (item) =>
+              Number(
+                item.newRating
+              ) || 0
+          );
+
+
+        const minRating =
+          Math.min(...values);
+
+        const maxRating =
+          Math.max(...values);
+
+
+        const range =
+          Math.max(
+            1,
+            maxRating - minRating
+          );
+
+
+        const points =
+          history.map(
+            (item, index) => {
+
+              const x =
+                paddingX +
+                (
+                  index /
+                  Math.max(
+                    1,
+                    history.length - 1
+                  )
+                ) *
+                (
+                  width -
+                  paddingX * 2
+                );
+
+
+              const y =
+                height -
+                paddingY -
+                (
+                  (
+                    item.newRating -
+                    minRating
+                  ) /
+                  range
+                ) *
+                (
+                  height -
+                  paddingY * 2
+                );
+
+
+              return {
+                x,
+                y,
+                rating:
+                  Number(
+                    item.newRating
+                  ) || 0,
+                contest:
+                  item.contestName ||
+                  "",
+                date:
+                  item.date ||
+                  "",
+              };
+
+            }
+          );
+
+
+        const line =
+          points
+            .map(
+              (point) =>
+                `${point.x},${point.y}`
+            )
+            .join(" ");
+
+
+        const circles =
+          points
+            .map(
+              (point) => `
+                <circle
+                  cx="${point.x}"
+                  cy="${point.y}"
+                  r="3"
+                >
+
+                  <title>
+                    ${escapeHtml(
+                      `${point.contest} · ${point.rating}`
+                    )}
+                  </title>
+
+                </circle>
+              `
+            )
+            .join("");
+
+
+        return `
+
+          <div class="cf-chart">
+
+            <svg
+              viewBox="0 0 ${width} ${height}"
+              preserveAspectRatio="none"
+              role="img"
+              aria-label="Codeforces rating history"
+            >
+
+              <line
+                x1="0"
+                y1="${height - paddingY}"
+                x2="${width}"
+                y2="${height - paddingY}"
+                class="cf-chart-axis"
+              />
+
+
+              <line
+                x1="0"
+                y1="${paddingY}"
+                x2="${width}"
+                y2="${paddingY}"
+                class="cf-chart-grid"
+              />
+
+
+              <polyline
+                points="${line}"
+                class="cf-chart-line"
+              />
+
+
+              ${circles}
+
+            </svg>
+
+
+            <div class="cf-chart-labels">
+
+              <span>
+                ${formatNumber(minRating)}
+              </span>
+
+
+              <span>
+                ${formatNumber(maxRating)}
+              </span>
+
+            </div>
+
+          </div>
+
+        `;
+      }
+
+
+      /* =======================================================
+         GITHUB
+         ======================================================= */
+
+      function renderGithub(
+        data
+      ) {
+
+        githubUser.textContent =
+          data.username ||
+          "unknown";
+
+
+        setServiceStatus(
+          githubStatus,
+          !!data.ok
+        );
+
+
+        if (!data.ok) {
+
+          githubCard.classList.add(
+            "is-error"
+          );
+
+
+          githubContent.innerHTML =
+            placeholder(
+              "GitHub unavailable",
+              data.error ||
+              "Unable to fetch GitHub data."
+            );
+
+          return;
+        }
+
+
+        githubCard.classList.remove(
+          "is-error"
+        );
+
+
+        const contributions =
+          Number(
+            data.contributions?.total
+          ) || 0;
+
+
+        const days =
+          Array.isArray(
+            data.contributions?.days
+          )
+            ? data.contributions.days
+            : [];
+
+
+        const heatmap =
+          buildContributionHeatmap(
+            days,
+            {
+              prefix: "github",
+            }
+          );
+
+
+        githubContent.innerHTML = `
+
+          <div class="stats-profile">
+
+            ${
+              data.avatar
+                ? `
+                  <img
+                    class="stats-avatar"
+                    src="${escapeHtml(
+                      safeUrl(
+                        data.avatar
+                      )
+                    )}"
+                    alt=""
+                    loading="lazy"
+                  />
+                `
+                : `
+                  <div
+                    class="stats-avatar stats-avatar-fallback"
+                    aria-hidden="true"
+                  >
+                    GH
+                  </div>
+                `
+            }
+
+
+            <div class="stats-profile-copy">
+
+              <div
+                class="stats-profile-name"
+              >
+                ${escapeHtml(
+                  data.name ||
+                  data.username
+                )}
+              </div>
+
+
+              <a
+                class="stats-profile-link"
+                href="${escapeHtml(
+                  safeUrl(data.profile)
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/${escapeHtml(
+                  data.username
+                )}
+              </a>
+
+            </div>
+
+          </div>
+
+
+          <div class="stats-metrics">
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                public repos
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  data.publicRepos
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                followers
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  data.followers
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                following
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  data.following
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                contributions
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  contributions
+                )}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="github-contrib">
+
+            <div
+              class="activity-header"
+            >
+
+              <span>
+                contribution activity
+              </span>
+
+
+              <span>
+                ${formatNumber(
+                  contributions
+                )} total
+              </span>
+
+            </div>
+
+
+            <div
+              class="github-heatmap-wrap"
+            >
+
+              <div
+                class="github-heatmap"
+              >
+                ${heatmap}
+              </div>
+
+            </div>
+
+          </div>
+
+
+          ${profileFooter(
+            data.updatedAt,
+            data.profile
+          )}
+
+        `;
+      }
+
+
+      /* =======================================================
+         LEETCODE
+         ======================================================= */
+
+      function renderLeetcode(
+        data
+      ) {
+
+        leetcodeUser.textContent =
+          data.username ||
+          "unknown";
+
+
+        setServiceStatus(
+          leetcodeStatus,
+          !!data.ok
+        );
+
+
+        if (!data.ok) {
+
+          leetcodeCard.classList.add(
+            "is-error"
+          );
+
+
+          leetcodeContent.innerHTML =
+            placeholder(
+              "LeetCode unavailable",
+              data.error ||
+              "Unable to fetch LeetCode data."
+            );
+
+          return;
+        }
+
+
+        leetcodeCard.classList.remove(
+          "is-error"
+        );
+
+
+        const activity =
+          data.activity || {};
+
+
+        const days =
+          Array.isArray(
+            activity.days
+          )
+            ? activity.days
+            : [];
+
+
+        const heatmap =
+          buildContributionHeatmap(
+            days,
+            {
+              prefix: "leetcode",
+            }
+          );
+
+
+        leetcodeContent.innerHTML = `
+
+          <div class="stats-profile">
+
+            ${
+              data.avatar
+                ? `
+                  <img
+                    class="stats-avatar"
+                    src="${escapeHtml(
+                      safeUrl(
+                        data.avatar
+                      )
+                    )}"
+                    alt=""
+                    loading="lazy"
+                  />
+                `
+                : `
+                  <div
+                    class="stats-avatar stats-avatar-fallback"
+                    aria-hidden="true"
+                  >
+                    LC
+                  </div>
+                `
+            }
+
+
+            <div class="stats-profile-copy">
+
+              <div
+                class="stats-profile-name"
+              >
+                ${escapeHtml(
+                  data.name ||
+                  data.username
+                )}
+              </div>
+
+
+              <a
+                class="stats-profile-link"
+                href="${escapeHtml(
+                  safeUrl(data.profile)
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                leetcode.com/${escapeHtml(
+                  data.username
+                )}
+              </a>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="stats-primary"
+          >
+
+            <span
+              class="stats-metric-label"
+            >
+              problems solved
+            </span>
+
+
+            <span
+              class="stats-primary-value"
+            >
+              ${formatNumber(
+                data.totalSolved
+              )}
+            </span>
+
+          </div>
+
+
+          <div
+            class="difficulty-row"
+          >
+
+
+            <div class="difficulty easy">
+
+              <span
+                class="difficulty-label"
+              >
+                easy
+              </span>
+
+
+              <span
+                class="difficulty-value"
+              >
+                ${formatNumber(
+                  data.easySolved
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="difficulty medium">
+
+              <span
+                class="difficulty-label"
+              >
+                medium
+              </span>
+
+
+              <span
+                class="difficulty-value"
+              >
+                ${formatNumber(
+                  data.mediumSolved
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="difficulty hard">
+
+              <span
+                class="difficulty-label"
+              >
+                hard
+              </span>
+
+
+              <span
+                class="difficulty-value"
+              >
+                ${formatNumber(
+                  data.hardSolved
+                )}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="stats-metrics"
+          >
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                contest rating
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${
+                  data.contest?.rating
+                    ? formatNumber(
+                        data.contest.rating
+                      )
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                ranking
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${
+                  data.ranking
+                    ? formatNumber(
+                        data.ranking
+                      )
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                acceptance
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${
+                  data.acceptanceRate
+                    ? `${data.acceptanceRate}%`
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                contests
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${
+                  data.contest?.attendedContests
+                    ? formatNumber(
+                        data.contest
+                          .attendedContests
+                      )
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="leetcode-activity">
+
+            <div
+              class="activity-header"
+            >
+
+              <span>
+                activity
+              </span>
+
+
+              <span>
+                ${
+                  activity.totalSubmissions
+                    ? `${formatNumber(
+                        activity.totalSubmissions
+                      )} submissions`
+                    : ""
+                }
+              </span>
+
+            </div>
+
+
+            <div
+              class="activity-stats"
+            >
+
+              <span>
+                streak:
+                <b>
+                  ${
+                    formatNumber(
+                      activity.currentStreak || 0
+                    )
+                  }
+                </b>
+              </span>
+
+
+              <span>
+                best:
+                <b>
+                  ${
+                    formatNumber(
+                      activity.longestStreak || 0
+                    )
+                  }
+                </b>
+              </span>
+
+
+              <span>
+                active:
+                <b>
+                  ${
+                    formatNumber(
+                      activity.activeDays || 0
+                    )
+                  }
+                </b>
+              </span>
+
+            </div>
+
+
+            <div
+              class="leetcode-heatmap-wrap"
+            >
+
+              <div
+                class="leetcode-heatmap"
+              >
+                ${heatmap}
+              </div>
+
+            </div>
+
+          </div>
+
+
+          ${profileFooter(
+            data.updatedAt,
+            data.profile
+          )}
+
+        `;
+      }
+
+
+      /* =======================================================
+         CODEFORCES
+         ======================================================= */
+
+      function renderCodeforces(
+        data
+      ) {
+
+        codeforcesUser.textContent =
+          data.handle ||
+          "unknown";
+
+
+        setServiceStatus(
+          codeforcesStatus,
+          !!data.ok
+        );
+
+
+        if (!data.ok) {
+
+          codeforcesCard.classList.add(
+            "is-error"
+          );
+
+
+          codeforcesContent.innerHTML =
+            placeholder(
+              "Codeforces unavailable",
+              data.error ||
+              "Unable to fetch Codeforces data."
+            );
+
+          return;
+        }
+
+
+        codeforcesCard.classList.remove(
+          "is-error"
+        );
+
+
+        const history =
+          Array.isArray(
+            data.ratingHistory
+          )
+            ? data.ratingHistory
+            : [];
+
+
+        const latest =
+          data.latestContest ||
+          null;
+
+
+        codeforcesContent.innerHTML = `
+
+          <div class="stats-profile">
+
+            ${
+              data.avatar
+                ? `
+                  <img
+                    class="stats-avatar"
+                    src="${escapeHtml(
+                      safeUrl(
+                        data.avatar
+                      )
+                    )}"
+                    alt=""
+                    loading="lazy"
+                  />
+                `
+                : `
+                  <div
+                    class="stats-avatar stats-avatar-fallback"
+                    aria-hidden="true"
+                  >
+                    CF
+                  </div>
+                `
+            }
+
+
+            <div class="stats-profile-copy">
+
+              <div
+                class="stats-profile-name"
+              >
+                ${escapeHtml(
+                  data.name ||
+                  data.handle
+                )}
+              </div>
+
+
+              <a
+                class="stats-profile-link"
+                href="${escapeHtml(
+                  safeUrl(data.profile)
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                codeforces.com/profile/${escapeHtml(
+                  data.handle
+                )}
+              </a>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="rating-block"
+          >
+
+            <div class="rating-main">
+
+              <span
+                class="rating-label"
+              >
+                current rating
+              </span>
+
+
+              <span
+                class="rating-value"
+              >
+                ${
+                  data.rating
+                    ? formatNumber(
+                        data.rating
+                      )
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+
+            <div
+              class="rating-rank"
+            >
+
+              ${escapeHtml(
+                data.rank ||
+                "unrated"
+              )}
+
+
+              <span>
+
+                max:
+                ${
+                  data.maxRating
+                    ? formatNumber(
+                        data.maxRating
+                      )
+                    : "—"
+                }
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="stats-metrics"
+          >
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                max rank
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${escapeHtml(
+                  data.maxRank ||
+                  "unrated"
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                contests
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  data.contests
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                recent solved
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${formatNumber(
+                  data.solvedFromRecentSubmissions
+                )}
+              </span>
+
+            </div>
+
+
+            <div class="stats-metric">
+
+              <span
+                class="stats-metric-label"
+              >
+                best rating
+              </span>
+
+
+              <span
+                class="stats-metric-value"
+              >
+                ${
+                  data.bestRating
+                    ? formatNumber(
+                        data.bestRating
+                      )
+                    : "—"
+                }
+              </span>
+
+            </div>
+
+          </div>
+
+
+          ${
+            latest
+              ? `
+
+                <div
+                  class="stats-subsection"
+                >
+
+                  <div
+                    class="stats-subsection-title"
+                  >
+                    latest contest
+                  </div>
+
+
+                  <div
+                    class="contest-line"
+                  >
+
+                    <span
+                      class="contest-name"
+                      title="${escapeHtml(
+                        latest.contestName
+                      )}"
+                    >
+                      ${escapeHtml(
+                        latest.contestName
+                      )}
+                    </span>
+
+
+                    <span
+                      class="contest-value ${
+                        latest.ratingChange > 0
+                          ? "positive"
+                          : latest.ratingChange < 0
+                            ? "negative"
+                            : ""
+                      }"
+                    >
+
+                      ${
+                        latest.ratingChange > 0
+                          ? "+"
+                          : ""
+                      }
+
+                      ${formatNumber(
+                        latest.ratingChange
+                      )}
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+              `
+              : ""
+          }
+
+
+          <div
+            class="cf-rating-chart"
+          >
+
+            <div
+              class="activity-header"
+            >
+
+              <span>
+                rating history
+              </span>
+
+
+              <span>
+                ${
+                  data.maxRating
+                    ? `${formatNumber(
+                        data.maxRating
+                      )} peak`
+                    : ""
+                }
+              </span>
+
+            </div>
+
+
+            ${buildRatingChart(
+              history
+            )}
+
+          </div>
+
+
+          ${profileFooter(
+            data.updatedAt,
+            data.profile
+          )}
+
+        `;
+      }
+
+
+      /* =======================================================
+         MAIN RENDER
+         ======================================================= */
+
+      function renderAllStats(
+        payload
+      ) {
+
+        if (!payload) {
+          return;
+        }
+
+
+        const github =
+          payload.github || {
+            ok: false,
+            error:
+              "No GitHub data.",
+          };
+
+
+        const leetcode =
+          payload.leetcode || {
+            ok: false,
+            error:
+              "No LeetCode data.",
+          };
+
+
+        const codeforces =
+          payload.codeforces || {
+            ok: false,
+            error:
+              "No Codeforces data.",
+          };
+
+
+        renderGithub(github);
+        renderLeetcode(leetcode);
+        renderCodeforces(codeforces);
+
+
+        const services = [
+          github,
+          leetcode,
+          codeforces,
+        ];
+
+
+        const working =
+          services.filter(
+            (service) =>
+              service?.ok
+          ).length;
+
+
+        const configured =
+          services.filter(
+            (service) =>
+              service?.enabled
+          ).length;
+
+
+        if (working === 3) {
+
+          setGlobalStatus(
+            "live",
+            "all systems live"
+          );
+
+        } else if (working > 0) {
+
+          setGlobalStatus(
+            "error",
+            `${working}/${configured || 3} online`
+          );
+
+        } else {
+
+          setGlobalStatus(
+            "error",
+            "offline"
+          );
+
+        }
+
+
+        refreshButton.disabled =
+          false;
+      }
+
+
+      /* =======================================================
+         STATS EVENT
+         ======================================================= */
+
+      window.addEventListener(
+        "tahoor:stats",
+        (event) => {
+
+          const payload =
+            event.detail;
+
+
+          if (
+            payload?.status ===
+            "loading"
+          ) {
+
+            setGlobalStatus(
+              "loading",
+              "fetching stats..."
+            );
+
+
+            refreshButton.disabled =
+              true;
+
+
+            return;
+          }
+
+
+          if (
+            payload?.status ===
+            "ready"
+          ) {
+
+            renderAllStats(
+              payload
+            );
+
+          }
+
+        }
+      );
+
+
+      /* =======================================================
+         MANUAL REFRESH
+         ======================================================= */
+
+      refreshButton.addEventListener(
+        "click",
+        async () => {
+
+          if (
+            !window.TAHOOR_STATS_API ||
+            typeof
+              window.TAHOOR_STATS_API.refresh !==
+              "function"
+          ) {
+            return;
+          }
+
+
+          refreshButton.disabled =
+            true;
+
+
+          setGlobalStatus(
+            "loading",
+            "refreshing..."
+          );
+
+
+          try {
+
+            await window
+              .TAHOOR_STATS_API
+              .refresh();
+
+          } catch (error) {
+
+            console.error(
+              "Stats refresh failed:",
+              error
+            );
+
+
+            setGlobalStatus(
+              "error",
+              "refresh failed"
+            );
+
+
+            refreshButton.disabled =
+              false;
+
+          }
+
+        }
+      );
+
+    })();
+  </script>
+
+</body>
+
+</html>

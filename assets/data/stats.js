@@ -1,31 +1,30 @@
 (function () {
   window.TAHOOR_DATA = window.TAHOOR_DATA || {};
 
-  // Keep this file as the single source for personal stats.
-  // Set enabled: true and fill in the values when you are ready.
+  /*
+   * Developer statistics configuration.
+   *
+   * Keep usernames/profile identifiers here.
+   * API fetching happens in assets/js/stats.js.
+   */
+
   window.TAHOOR_DATA.stats = {
-    steam: {
-      enabled: false,
-      profile: "",
-      games: null,
-      hours: null,
-      favorite: "",
-      favoriteHours: null,
-    },
-    spotify: {
-      enabled: false,
-      profile: "",
-      minutes: null,
-      topArtist: "",
-      topTrack: "",
-      topAlbum: "",
-    },
     github: {
-      enabled: false,
+      enabled: true,
+      username: "TaH00R",
       profile: "https://github.com/TaH00R",
-      repositories: null,
-      contributions: null,
-      stars: null,
+    },
+
+    leetcode: {
+      enabled: true,
+      username: "WQseQx4dgL",
+      profile: "https://leetcode.com/u/WQseQx4dgL/",
+    },
+
+    codeforces: {
+      enabled: true,
+      handle: "tahoor_06",
+      profile: "https://codeforces.com/profile/tahoor_06",
     },
   };
 })();
