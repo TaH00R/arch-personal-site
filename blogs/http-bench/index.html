@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>HTTP Bench • TaHooR</title>
+  <meta
+    name="description"
+    content="Building the same HTTP server in C, C++, Go, Java, JavaScript and Python, then benchmarking them under concurrent workloads."
+  />
+  <meta name="theme-color" content="#11111b" />
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/blog.css" />
+
+  <!-- Highlight.js -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/base16/catppuccin-mocha.min.css"
+  />
+</head>
+
+<body data-cwd="~/blog/" data-root="../../">
+
+  <div class="wallpaper" aria-hidden="true"></div>
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- =========================================================
+       TOP PANEL
+       ========================================================= -->
+
+  <header class="panel">
+
+    <div class="panel-left">
+
+      <a class="panel-brand" href="../../">
+        TaHooR
+      </a>
+
+      <ul class="workspaces">
+
+        <li>
+          <a href="../../">
+            <span class="ws-num">1</span>home
+          </a>
+        </li>
+
+        <li>
+          <a href="../../about/">
+            <span class="ws-num">2</span>about
+          </a>
+        </li>
+
+        <li>
+          <a aria-current="page" href="../">
+            <span class="ws-num">3</span>blog
+          </a>
+        </li>
+
+        <li>
+          <a href="../../poetry/">
+            <span class="ws-num">4</span>poetry
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
+
+    <div class="panel-center">
+      <span>
+        &copy; 2026 &middot;
+
+        <a
+          href="https://github.com/TaH00R"
+          target="_blank"
+          rel="noopener"
+        >
+          TaHooR
+        </a>
+
+        &middot; running on <span>arch btw</span>
+      </span>
+    </div>
+
+    <div class="panel-right">
+
+      <span class="panel-swatches" aria-hidden="true">
+        <i class="sw-red"></i>
+        <i class="sw-yellow"></i>
+        <i class="sw-green"></i>
+        <i class="sw-blue"></i>
+        <i class="sw-mauve"></i>
+      </span>
+
+      <span class="panel-clock"></span>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================================================
+       ARTICLE WINDOW
+       ========================================================= -->
+
+  <main id="main" class="desktop desktop-surface blog-page">
+
+    <section class="terminal window blog-terminal">
+
+      <div class="term-titlebar">
+
+        <span class="term-dots" aria-hidden="true">
+          <i class="dot-red"></i>
+          <i class="dot-yellow"></i>
+          <i class="dot-green"></i>
+        </span>
+
+        <span class="term-title">
+          <b>TaHooR@arch</b>: ~/blog/http-bench
+        </span>
+
+        <span></span>
+
+      </div>
+
+
+      <div class="term-body">
+
+        <div class="blog-layout">
+
+          <!-- =================================================
+               ARTICLE
+               ================================================= -->
+
+          <article>
+
+            <header>
+
+              <h1>
+                Writing the Same HTTP Server in Six Languages
+              </h1>
+
+              <div class="post-meta">
+
+                <span class="meta-item">
+                  04 Oct 2026
+                </span>
+
+                <span class="meta-sep">·</span>
+
+                <span class="meta-item">
+                  Systems
+                </span>
+
+                <span class="meta-sep">·</span>
+
+                <span class="meta-item">
+                  Benchmarking
+                </span>
+
+              </div>
+
+              <div class="post-tags">
+
+                <span class="tag">#Systems</span>
+                <span class="tag">#Networking</span>
+                <span class="tag">#Go</span>
+                <span class="tag">#Benchmarking</span>
+
+              </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 01 — WHY
+                 ================================================= -->
+
+            <h2 id="why">
+              01 · Why I Did This
+            </h2>
+
+            <p>
+              I wanted to know what actually happens when different
+              programming languages are used to build the same HTTP server.
+            </p>
+
+            <p>
+              Not a language-war benchmark pulled from somewhere on the
+              internet. Not a synthetic loop that does nothing useful.
+              An actual server accepting connections, reading HTTP requests,
+              producing HTTP responses and dealing with increasing amounts
+              of concurrency.
+            </p>
+
+            <p>
+              So I built roughly the same HTTP server in
+              <strong>C</strong>,
+              <strong>C++</strong>,
+              <strong>Go</strong>,
+              <strong>Java</strong>,
+              <strong>JavaScript</strong> and
+              <strong>Python</strong>.
+            </p>
+
+            <p>
+              Then I threw concurrent connections at them and measured
+              throughput, latency, CPU usage and memory usage.
+            </p>
+
+            <blockquote>
+              The goal wasn't to prove that one language is universally
+              better than another. The goal was to understand what the
+              runtime, networking model and implementation actually do
+              under load.
+            </blockquote>
+
+
+            <!-- =================================================
+                 02 — HTTP
+                 ================================================= -->
+
+            <h2 id="http-server">
+              02 · What Actually Is an HTTP Server?
+            </h2>
+
+            <p>
+              Before comparing implementations, it helps to understand
+              what the program is actually doing.
+            </p>
+
+            <p>
+              At its simplest, an HTTP server is a program that listens
+              for network connections, receives HTTP requests and sends
+              HTTP responses back to clients.
+            </p>
+
+            <p>
+              Underneath HTTP sits a transport connection. For the servers
+              tested here, that means TCP sockets.
+            </p>
+
+            <pre data-filename="server lifecycle"><code class="language-text">socket()
+   │
+   ▼
+bind()
+   │
+   ▼
+listen()
+   │
+   ▼
+accept()
+   │
+   ▼
+read request
+   │
+   ▼
+parse HTTP
+   │
+   ▼
+build response
+   │
+   ▼
+write response
+   │
+   ▼
+close connection</code></pre>
+
+            <h3>
+              The TCP side
+            </h3>
+
+            <p>
+              The server first creates a socket, binds it to an address
+              and port, and starts listening for incoming connections.
+              When a client connects, the server accepts that connection.
+            </p>
+
+            <h3>
+              The HTTP side
+            </h3>
+
+            <p>
+              Once the connection exists, the server receives bytes.
+              Those bytes represent an HTTP request.
+            </p>
+
+            <pre data-filename="request"><code class="language-http">GET / HTTP/1.1
+Host: localhost
+Connection: close</code></pre>
+
+            <p>
+              The server then produces something like:
+            </p>
+
+            <pre data-filename="response"><code class="language-http">HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 18
+
+hello from TaHooR</code></pre>
+
+            <p>
+              That's the basic loop.
+            </p>
+
+            <p>
+              The interesting part is what happens when hundreds or thousands
+              of clients want to do this at the same time.
+            </p>
+
+
+            <!-- =================================================
+                 03 — IMPLEMENTATIONS
+                 ================================================= -->
+
+            <h2 id="implementations">
+              03 · The Six Implementations
+            </h2>
+
+            <p>
+              I tried to keep the servers intentionally simple. The goal
+              was to benchmark the networking and runtime behaviour rather
+              than compare six completely different frameworks.
+            </p>
+
+
+            <!-- C -->
+
+            <h3 id="c">
+              C
+            </h3>
+
+            <p>
+              The C implementation stays close to the underlying socket API.
+              There is very little abstraction between the server and the
+              operating system.
+            </p>
+
+            <pre data-filename="server.c"><code class="language-c">int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+bind(server_fd, (struct sockaddr *)&amp;address, sizeof(address));
+
+listen(server_fd, SOMAXCONN);
+
+while (1) {
+    int client_fd = accept(server_fd, NULL, NULL);
+
+    /* read request */
+    /* build response */
+    /* write response */
+
+    close(client_fd);
+}</code></pre>
+
+            <p>
+              The complete implementation is available in the benchmark
+              repository:
+            </p>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/blob/main/servers/c/main.c"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete C implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- C++ -->
+
+            <h3 id="cpp">
+              C++
+            </h3>
+
+            <p>
+              C++ uses the same underlying operating-system networking
+              primitives, but the implementation can be structured with
+              higher-level language features.
+            </p>
+
+            <pre data-filename="server.cpp"><code class="language-cpp">int server = socket(AF_INET, SOCK_STREAM, 0);
+
+bind(server, reinterpret_cast&lt;sockaddr*&gt;(&amp;address),
+     sizeof(address));
+
+listen(server, SOMAXCONN);
+
+while (true) {
+    int client = accept(server, nullptr, nullptr);
+
+    // read request
+    // build response
+    // write response
+
+    close(client);
+}</code></pre>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/tree/main/servers/cpp"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete C++ implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- Go -->
+
+            <h3 id="go">
+              Go
+            </h3>
+
+            <p>
+              Go takes a very different approach to concurrency.
+              Instead of manually creating and managing an operating-system
+              thread for every connection, the implementation can use
+              goroutines.
+            </p>
+
+            <pre data-filename="server.go"><code class="language-go">listener, err := net.Listen("tcp", ":8080")
+if err != nil {
+    log.Fatal(err)
+}
+
+for {
+    conn, err := listener.Accept()
+    if err != nil {
+        continue
+    }
+
+    go handleConnection(conn)
+}</code></pre>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/blob/main/servers/go/server.go"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete Go implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- Java -->
+
+            <h3 id="java">
+              Java
+            </h3>
+
+            <p>
+              The Java implementation runs inside the JVM. That means the
+              benchmark isn't just measuring the application code itself;
+              JVM startup, memory management and the runtime environment
+              are part of the overall picture.
+            </p>
+
+            <pre data-filename="Server.java"><code class="language-java">ServerSocket server = new ServerSocket(8080);
+
+while (true) {
+    Socket client = server.accept();
+
+    // read request
+    // build response
+    // write response
+
+    client.close();
+}</code></pre>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/tree/main/servers/java"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete Java implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- JavaScript -->
+
+            <h3 id="javascript">
+              JavaScript
+            </h3>
+
+            <p>
+              The JavaScript server uses Node.js. Instead of mapping every
+              connection directly to a thread, Node's networking model is
+              built around asynchronous, event-driven I/O.
+            </p>
+
+            <pre data-filename="server.js"><code class="language-javascript">import http from "http";
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/plain"
+  });
+
+  res.end("hello from TaHooR");
+});
+
+server.listen(8080);</code></pre>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/blob/main/servers/javascript/server.js"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete JavaScript implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- Python -->
+
+            <h3 id="python">
+              Python
+            </h3>
+
+            <p>
+              Python gives us a much higher-level interface to networking.
+              That makes the implementation compact and readable, while
+              also introducing the runtime characteristics that show up in
+              the benchmark.
+            </p>
+
+            <pre data-filename="server.py"><code class="language-python">from http.server import HTTPServer, BaseHTTPRequestHandler
+
+
+class Handler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        body = b"hello from TaHooR"
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+
+        self.wfile.write(body)
+
+
+server = HTTPServer(("0.0.0.0", 8080), Handler)
+server.serve_forever()</code></pre>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/blob/main/servers/python/server.py"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the complete Python implementation on GitHub
+              </a>
+            </p>
+
+
+            <!-- =================================================
+                 04 — METHODOLOGY
+                 ================================================= -->
+
+            <h2 id="methodology">
+              04 · Benchmark Methodology
+            </h2>
+
+            <p>
+              Each language was tested using the same general workload.
+              The benchmark varied the number of concurrent connections
+              and the number of worker threads used by the test.
+            </p>
+
+            <h3>
+              Concurrent connections
+            </h3>
+
+            <pre data-filename="workload"><code class="language-text">1
+10
+100
+500
+1000</code></pre>
+
+            <h3>
+              Thread counts
+            </h3>
+
+            <pre data-filename="threads"><code class="language-text">1 thread
+2 threads
+4 threads
+8 threads</code></pre>
+
+            <h3>
+              Metrics
+            </h3>
+
+            <ul>
+              <li>HTTP throughput</li>
+              <li>Average latency</li>
+              <li>Average CPU usage</li>
+              <li>Peak memory usage</li>
+            </ul>
+
+            <p>
+              The aggregate dataset contains 51 completed tests for each
+              language.
+            </p>
+
+            <blockquote>
+              These results describe these particular implementations,
+              runtime configurations, hardware and workload. They should
+              not be treated as a universal ranking of programming
+              languages.
+            </blockquote>
+
+
+            <!-- =================================================
+                 05 — RESULTS
+                 ================================================= -->
+
+            <h2 id="results">
+              05 · Results
+            </h2>
+
+            <p>
+              And now for the part where I make several graphs and pretend
+              I didn't spend way too long staring at them.
+            </p>
+
+
+            <h3>
+              Aggregate results
+            </h3>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Language</th>
+                  <th>Requests/s</th>
+                  <th>CPU</th>
+                  <th>Peak memory</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td>C</td>
+                  <td>59,738</td>
+                  <td>71.6%</td>
+                  <td>1.78 MB</td>
+                </tr>
+
+                <tr>
+                  <td>C++</td>
+                  <td>71,047</td>
+                  <td>70.6%</td>
+                  <td>3.92 MB</td>
+                </tr>
+
+                <tr>
+                  <td>Go</td>
+                  <td>42,962</td>
+                  <td>93.2%</td>
+                  <td>10.48 MB</td>
+                </tr>
+
+                <tr>
+                  <td>Java</td>
+                  <td>57,239</td>
+                  <td>82.1%</td>
+                  <td>127.44 MB</td>
+                </tr>
+
+                <tr>
+                  <td>JavaScript</td>
+                  <td>22,500</td>
+                  <td>98.7%</td>
+                  <td>79.52 MB</td>
+                </tr>
+
+                <tr>
+                  <td>Python</td>
+                  <td>53,351</td>
+                  <td>82.7%</td>
+                  <td>10.28 MB</td>
+                </tr>
+
+              </tbody>
+            </table>
+
+
+            <h3>
+              Throughput
+            </h3>
+
+            <p>
+              Throughput measures how many HTTP requests the server is able
+              to process per second.
+            </p>
+
+            <img
+              src="../../assets/images/http-bench/throughput_4_threads.png"
+              alt="HTTP throughput comparison for four threads"
+              loading="lazy"
+            />
+
+
+            <h3>
+              Latency
+            </h3>
+
+            <p>
+              Latency shows how long requests take to complete. As
+              concurrency increases, the differences between the
+              implementations become much more visible.
+            </p>
+
+            <img
+              src="../../assets/images/http-bench/latency_4_threads.png"
+              alt="HTTP latency comparison for four threads"
+              loading="lazy"
+            />
+
+
+            <h3>
+              CPU usage
+            </h3>
+
+            <p>
+              CPU usage gives us another view of the cost of handling the
+              workload.
+            </p>
+
+            <img
+              src="../../assets/images/http-bench/cpu_4_threads.png"
+              alt="CPU usage comparison for four threads"
+              loading="lazy"
+            />
+
+
+            <h3>
+              Memory usage
+            </h3>
+
+            <p>
+              Memory usage is where some of the runtime differences become
+              particularly obvious.
+            </p>
+
+            <img
+              src="../../assets/images/http-bench/memory_4_threads.png"
+              alt="Peak memory usage comparison for four threads"
+              loading="lazy"
+            />
+
+
+            <h3>
+              The full dataset
+            </h3>
+
+            <p>
+              The graphs above are only the visual summary. The raw
+              benchmark results are available alongside the source code.
+            </p>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/tree/main/results"
+                target="_blank"
+                rel="noopener"
+              >
+                → View the raw benchmark data on GitHub
+              </a>
+            </p>
+
+
+            <!-- =================================================
+                 06 — WHAT I LEARNED
+                 ================================================= -->
+
+            <h2 id="lessons">
+              06 · What I Learned
+            </h2>
+
+            <p>
+              The biggest takeaway wasn't that one language "won".
+            </p>
+
+            <p>
+              It was how much the surrounding execution model matters.
+              The language is only one part of the system. The runtime,
+              networking APIs, concurrency model, memory management and
+              implementation itself all affect the final result.
+            </p>
+
+            <p>
+              I also learned that adding more threads doesn't magically
+              make a server faster. At some point the workload, runtime
+              and machine become the limiting factors.
+            </p>
+
+            <p>
+              Most importantly, benchmarking forced me to stop thinking
+              about programming languages as isolated syntax choices.
+              They're different ways of interacting with the machine.
+            </p>
+
+
+            <!-- =================================================
+                 07 — COOLNESS
+                 ================================================= -->
+
+            <h2 id="coolness">
+              07 · Why Am I Cooler Than Random Kids?
+            </h2>
+
+            <pre data-filename="coolness.sh"><code class="language-bash">$ ./why-am-i-cooler
+
+checking credentials...
+
+[✓] built an HTTP server
+[✓] implemented it in six languages
+[✓] tested concurrent connections
+[✓] measured throughput
+[✓] measured latency
+[✓] measured CPU usage
+[✓] measured memory usage
+[✓] generated graphs
+[✓] wrote a blog post about it
+
+random-kid.exe:
+[✓] made another todo app
+
+verdict:
+TaHooR is cooler.
+
+exit code: 0</code></pre>
+
+            <p>
+              Scientific? Absolutely not.
+            </p>
+
+            <p>
+              Correct? I refuse to comment.
+            </p>
+
+
+            <!-- =================================================
+                 08 — SOURCE
+                 ================================================= -->
+
+            <h2 id="source">
+              08 · Source Code
+            </h2>
+
+            <p>
+              The complete implementations, benchmark scripts and raw
+              results live in the GitHub repository.
+            </p>
+
+            <p>
+              <a
+                href="https://github.com/TaH00R/http-servers-bench/tree/main"
+                target="_blank"
+                rel="noopener"
+              >
+                → Open the HTTP benchmark repository on GitHub
+              </a>
+            </p>
+
+            <pre data-filename="repository"><code class="language-text">http-bench/
+├── c/
+├── cpp/
+├── go/
+├── java/
+├── javascript/
+├── python/
+├── benchmark/
+└── results/</code></pre>
+
+            <hr />
+
+            <p>
+              <strong>
+                Built because I wanted to know what was actually happening
+                underneath the HTTP abstraction.
+              </strong>
+            </p>
+
+            <p>
+              And because benchmarking six languages sounded considerably
+              more fun than making another todo app.
+            </p>
+
+          </article>
+
+
+          <!-- =================================================
+               TABLE OF CONTENTS
+               Generated by toc.js
+               ================================================= -->
+
+          <aside class="toc"></aside>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================================================
+       SITE DATA
+       ========================================================= -->
+
+  <script src="../../assets/data/site.js"></script>
+  <script src="../../assets/data/projects.js"></script>
+  <script src="../../assets/data/skills.js"></script>
+  <script src="../../assets/data/socials.js"></script>
+  <script src="../../assets/data/about.js"></script>
+  <script src="../../assets/data/poetry.js"></script>
+  <script src="../../assets/data/stats.js"></script>
+  <script src="../../assets/data/blogs.js"></script>
+  <script src="../../assets/data/fortunes.js"></script>
+  <script src="../../assets/data/music.js"></script>
+
+
+  <!-- =========================================================
+       SITE JS
+       ========================================================= -->
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/filesystem.js"></script>
+  <script src="../../assets/js/terminal.js"></script>
+  <script src="../../assets/js/desktop.js"></script>
+
+  <!-- Blog JS -->
+  <script src="../../assets/js/toc.js"></script>
+
+  <!-- Highlight.js -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js">
+  </script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/http.min.js">
+  </script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js">
+  </script>
+
+  <script src="../../assets/js/hljs-init.js"></script>
+
+</body>
+
+</html>
