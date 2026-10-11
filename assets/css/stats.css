@@ -317,6 +317,11 @@
   min-width: 0;
 }
 
+/* Let WakaTime fill the two unused columns on the final desktop row. */
+.stats-grid > #wakatimeCard {
+  grid-column: span 2;
+}
+
 
 /* ============================================================
    CARD
@@ -1538,6 +1543,10 @@
   .stats-grid {
     grid-template-columns:
       1fr;
+  }
+
+  .stats-grid > #wakatimeCard {
+    grid-column: auto;
   }
 
 }
