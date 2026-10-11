@@ -477,6 +477,65 @@
 
             </section>
 
+
+            <!-- =================================================
+                 WAKATIME
+                 ================================================= -->
+
+            <section
+              id="wakatimeCard"
+              class="stats-card"
+              aria-labelledby="wakatimeTitle"
+            >
+
+              <div class="stats-card-header">
+
+                <div class="stats-service">
+
+                  <div class="stats-service-mark">
+                    WT
+                  </div>
+
+                  <div class="stats-service-copy">
+                    <div
+                      id="wakatimeTitle"
+                      class="stats-service-name"
+                    >
+                      WakaTime
+                    </div>
+
+                    <div
+                      id="wakatimeUser"
+                      class="stats-service-user"
+                    >
+                      coding activity
+                    </div>
+                  </div>
+
+                </div>
+
+                <span
+                  id="wakatimeStatus"
+                  class="stats-online"
+                >
+                  loading
+                </span>
+
+              </div>
+
+              <div
+                id="wakatimeContent"
+                class="stats-placeholder"
+                aria-live="polite"
+              >
+                <div class="stats-placeholder-inner">
+                  <strong>fetching WakaTime...</strong>
+                  weekly coding time + languages
+                </div>
+              </div>
+
+            </section>
+
           </div>
 
 
@@ -2089,6 +2148,157 @@
 
 
       /* =======================================================
+         WAKATIME
+         ======================================================= */
+
+      const wakatimeCard = $("#wakatimeCard");
+      const wakatimeContent = $("#wakatimeContent");
+      const wakatimeUser = $("#wakatimeUser");
+      const wakatimeStatus = $("#wakatimeStatus");
+      const WAKATIME_CACHE_KEY = "tahoor.stats.wakatime.v1";
+      const WAKATIME_CACHE_TTL = 15 * 60 * 1000;
+
+      function formatDuration(seconds) {
+        const totalMinutes = Math.floor((Number(seconds) || 0) / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        if (hours === 0) return `${minutes}m`;
+        if (minutes === 0) return `${hours}h`;
+        return `${hours}h ${minutes}m`;
+      }
+
+      function setWakaTimeStatus(ok) {
+        wakatimeStatus.className = ok
+          ? "stats-online"
+          : "stats-online stats-offline";
+        wakatimeStatus.textContent = ok ? "live" : "offline";
+      }
+
+      function renderWakaTime(data) {
+        if (!data?.ok) {
+          wakatimeCard.classList.add("is-error");
+          setWakaTimeStatus(false);
+          wakatimeContent.className = "stats-placeholder";
+          wakatimeContent.innerHTML = placeholder(
+            "WakaTime unavailable",
+            data?.error || "Unable to fetch coding activity."
+          );
+          return;
+        }
+
+        wakatimeCard.classList.remove("is-error");
+        setWakaTimeStatus(true);
+        wakatimeUser.textContent = "last 7 days";
+
+        const days = Array.isArray(data.days) ? data.days : [];
+        const maxSeconds = Math.max(1, ...days.map((day) => Number(day.seconds) || 0));
+        const dailyBars = days.map((day) => {
+          const seconds = Number(day.seconds) || 0;
+          const height = Math.max(3, Math.round((seconds / maxSeconds) * 100));
+          const date = new Date(`${day.date}T12:00:00`);
+          const label = date.toLocaleDateString([], { weekday: "short" });
+          return `
+            <div class="wakatime-day" title="${escapeHtml(`${label}: ${day.text}`)}">
+              <div class="wakatime-bar-track">
+                <span class="wakatime-bar" style="height:${height}%"></span>
+              </div>
+              <span class="wakatime-day-label">${escapeHtml(label)}</span>
+            </div>
+          `;
+        }).join("");
+
+        const languages = (data.languages || []).slice(0, 5).map((language) => `
+          <div class="wakatime-list-row">
+            <span class="wakatime-list-name" title="${escapeHtml(language.name)}">${escapeHtml(language.name)}</span>
+            <span class="wakatime-list-value">${escapeHtml(language.percent)}%</span>
+          </div>
+        `).join("");
+
+        const projects = (data.projects || []).slice(0, 3).map((project) => `
+          <div class="wakatime-list-row">
+            <span class="wakatime-list-name" title="${escapeHtml(project.name)}">${escapeHtml(project.name)}</span>
+            <span class="wakatime-list-value">${escapeHtml(project.text)}</span>
+          </div>
+        `).join("");
+
+        wakatimeContent.className = "wakatime-content";
+        wakatimeContent.innerHTML = `
+          <div class="stats-primary">
+            <span class="stats-metric-label">coding time · last 7 days</span>
+            <strong class="stats-primary-value">${escapeHtml(data.total.text)}</strong>
+          </div>
+
+          <div class="wakatime-activity">
+            <div class="activity-header">
+              <span>daily activity</span>
+              <span>${escapeHtml(data.days.length)} days</span>
+            </div>
+            <div class="wakatime-week">${dailyBars}</div>
+          </div>
+
+          <div class="stats-subsection">
+            <div class="stats-subsection-title">top languages</div>
+            ${languages || '<div class="wakatime-empty">no language data yet</div>'}
+          </div>
+
+          <div class="stats-subsection">
+            <div class="stats-subsection-title">top projects</div>
+            ${projects || '<div class="wakatime-empty">no project data yet</div>'}
+          </div>
+
+          <div class="stats-card-footer">
+            <span class="stats-updated">updated ${escapeHtml(formatDate(data.updatedAt))}</span>
+            <a class="stats-open" href="https://wakatime.com/dashboard" target="_blank" rel="noopener noreferrer">open WakaTime ↗</a>
+          </div>
+        `;
+      }
+
+      async function loadWakaTime(force = false) {
+        if (!force) {
+          try {
+            const raw = sessionStorage.getItem(WAKATIME_CACHE_KEY);
+            const cached = raw ? JSON.parse(raw) : null;
+            if (cached?.timestamp && Date.now() - cached.timestamp < WAKATIME_CACHE_TTL) {
+              renderWakaTime(cached.data);
+              return;
+            }
+          } catch {
+            // Ignore local cache failures.
+          }
+        }
+
+        try {
+          const response = await fetch("/api/wakatime", {
+            headers: { Accept: "application/json" },
+            cache: "no-store",
+          });
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data?.error || `HTTP ${response.status}`);
+          }
+
+          try {
+            sessionStorage.setItem(WAKATIME_CACHE_KEY, JSON.stringify({
+              timestamp: Date.now(),
+              data,
+            }));
+          } catch {
+            // Ignore local cache failures.
+          }
+
+          renderWakaTime(data);
+        } catch (error) {
+          renderWakaTime({
+            ok: false,
+            error: error?.message || "Unable to fetch WakaTime data.",
+          });
+        }
+      }
+
+
+      /* =======================================================
          MAIN RENDER
          ======================================================= */
 
@@ -2256,9 +2466,10 @@
 
           try {
 
-            await window
-              .TAHOOR_STATS_API
-              .refresh();
+            await Promise.all([
+              window.TAHOOR_STATS_API.refresh(),
+              loadWakaTime(true),
+            ]);
 
           } catch (error) {
 
@@ -2281,6 +2492,8 @@
 
         }
       );
+
+      loadWakaTime();
 
     })();
   </script>
