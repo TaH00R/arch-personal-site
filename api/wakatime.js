@@ -107,10 +107,8 @@ module.exports = async function handler(req, res) {
       .sort((a, b) => b.seconds - a.seconds)
       .slice(0, 3);
 
-    return res
-      .setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400")
-      .status(200)
-      .json({
+    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+    return res.status(200).json({
         ok: true,
         total: grandTotal,
         days,
