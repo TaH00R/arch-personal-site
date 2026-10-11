@@ -2215,41 +2215,16 @@
           </div>
         `).join("");
 
-        const projects = (data.projects || []).slice(0, 3).map((project) => `
-          <div class="wakatime-list-row">
-            <span class="wakatime-list-name" title="${escapeHtml(project.name)}">${escapeHtml(project.name)}</span>
-            <span class="wakatime-list-value">${escapeHtml(project.text)}</span>
-          </div>
-        `).join("");
-
         wakatimeContent.className = "wakatime-content";
         wakatimeContent.innerHTML = `
           <div class="stats-primary">
             <span class="stats-metric-label">coding time · last 7 days</span>
-            <strong class="stats-primary-value">${escapeHtml(data.total.text)}</strong>
-          </div>
-
-          <div class="wakatime-activity">
-            <div class="activity-header">
-              <span>daily activity</span>
-              <span>${escapeHtml(data.days.length)} days</span>
-            </div>
-            <div class="wakatime-week">${dailyBars}</div>
+            <strong class="stats-primary-value">${escapeHtml(data.total?.text || "0m")}</strong>
           </div>
 
           <div class="stats-subsection">
             <div class="stats-subsection-title">top languages</div>
             ${languages || '<div class="wakatime-empty">no language data yet</div>'}
-          </div>
-
-          <div class="stats-subsection">
-            <div class="stats-subsection-title">top projects</div>
-            ${projects || '<div class="wakatime-empty">no project data yet</div>'}
-          </div>
-
-          <div class="stats-card-footer">
-            <span class="stats-updated">updated ${escapeHtml(formatDate(data.updatedAt))}</span>
-            <a class="stats-open" href="https://wakatime.com/dashboard" target="_blank" rel="noopener noreferrer">open WakaTime ↗</a>
           </div>
         `;
       }
