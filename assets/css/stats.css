@@ -290,33 +290,36 @@
 /* ============================================================
    CARDS GRID
    ============================================================ */
-
+/* Dashboard layout */
 .stats-grid {
-  width: 100%;
-  min-width: 0;
-
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      3,
-      minmax(
-        0,
-        1fr
-      )
-    );
-
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-
   align-items: start;
 }
-
 
 .stats-grid > .stats-card {
   width: 100%;
   min-width: 0;
+  align-self: start;
 }
 
+/* Don't reserve a giant block while data loads */
+.stats-placeholder {
+  min-height: 140px;
+}
+
+/* Keep content from forcing cards wider */
+.stats-card,
+.stats-card * {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 
 
 /* ============================================================
@@ -635,78 +638,24 @@
 
 .stats-metrics {
   display: grid;
-
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(
-        0,
-        1fr
-      )
-    );
-
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .55rem;
 }
 
-
 .stats-metric {
   min-width: 0;
-
-  padding: .68rem;
-
-  overflow: hidden;
-
-  background:
-    rgba(205, 214, 244, .025);
-
-  border:
-    1px solid
-    rgba(205, 214, 244, .045);
-
-  border-radius: 8px;
+  padding: .68rem .45rem;
+  text-align: center;
 }
-
 
 .stats-metric-label {
-  display: block;
-
-  margin-bottom: .22rem;
-
-  color:
-    var(--overlay);
-
-  font-size: .62rem;
-
-  text-transform:
-    uppercase;
-
-  letter-spacing: .05em;
-
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: .6rem;
 }
 
-
 .stats-metric-value {
-  display: block;
-
-  color:
-    var(--text);
-
-  font-family:
-    var(--mono);
-
   font-size: .96rem;
-  font-weight: 800;
-
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
 }
 
 
@@ -1790,5 +1739,192 @@
 
   .wakatime-bar-track {
     height: 60px;
+  }
+}
+
+
+/* ============================================================
+   GITHUB REPOSITORIES + LANGUAGE BREAKDOWN
+   ============================================================ */
+
+.github-extra {
+  margin-top: 1rem;
+  min-width: 0;
+}
+
+.github-extra-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .45rem;
+}
+
+.github-extra-heading .stats-subsection-title {
+  margin: 0;
+}
+
+.github-extra-note {
+  color: var(--overlay);
+  font-family: var(--mono);
+  font-size: .58rem;
+  text-align: right;
+}
+
+
+.github-repositories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .4rem;
+}
+
+
+.github-repo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  min-width: 0;
+  padding: .65rem .7rem;
+  border: 1px solid rgba(205, 214, 244, .055);
+  border-radius: 8px;
+  background: rgba(205, 214, 244, .02);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, background .15s ease;
+}
+
+.github-repo:hover {
+  border-color: rgba(180, 190, 254, .2);
+  background: rgba(180, 190, 254, .045);
+}
+
+.github-repo-main {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 0;
+}
+
+.github-repo-main strong {
+  overflow: hidden;
+  color: var(--lavender);
+  font-family: var(--mono);
+  font-size: .68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-repo-main > span {
+  overflow: hidden;
+  color: var(--overlay);
+  font-size: .62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-repo-meta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: .2rem;
+  color: var(--subtext);
+  font-family: var(--mono);
+  font-size: .58rem;
+}
+
+.github-repo-language {
+  color: var(--mauve);
+}
+
+.github-language-heading {
+  margin-top: .95rem;
+}
+
+.github-language-bar {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  gap: 2px;
+  border-radius: 999px;
+  background: rgba(205, 214, 244, .06);
+}
+
+.github-language-segment {
+  display: block;
+  min-width: 2px;
+  background: var(--mauve);
+}
+
+.github-language-segment:nth-child(6n + 2) { background: var(--blue); }
+.github-language-segment:nth-child(6n + 3) { background: var(--green); }
+.github-language-segment:nth-child(6n + 4) { background: var(--yellow); }
+.github-language-segment:nth-child(6n + 5) { background: var(--peach); }
+.github-language-segment:nth-child(6n + 6) { background: var(--teal); }
+
+.github-language-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .35rem .75rem;
+  margin-top: .65rem;
+}
+
+.github-language-row,
+.github-language-name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.github-language-row {
+  justify-content: space-between;
+  gap: .5rem;
+  color: var(--subtext);
+  font-size: .63rem;
+}
+
+.github-language-name {
+  gap: .35rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-language-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--mauve);
+}
+
+.github-language-row:nth-child(6n + 2) .github-language-dot { background: var(--blue); }
+.github-language-row:nth-child(6n + 3) .github-language-dot { background: var(--green); }
+.github-language-row:nth-child(6n + 4) .github-language-dot { background: var(--yellow); }
+.github-language-row:nth-child(6n + 5) .github-language-dot { background: var(--peach); }
+.github-language-row:nth-child(6n + 6) .github-language-dot { background: var(--teal); }
+
+.github-language-percent {
+  flex-shrink: 0;
+  color: var(--overlay);
+  font-family: var(--mono);
+  font-size: .6rem;
+}
+
+@media (max-width: 480px) {
+  .github-language-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  
+.github-repositories {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+
+  .github-repo {
+    align-items: flex-start;
   }
 }
