@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+  <title>Mathematical Laboratory • TaHooR</title>
+
+  <meta
+
+    name="description"
+
+    content="I built 50 interactive mathematical experiments to turn abstract equations into things you can see, change and break."
+
+  />
+
+  <meta name="theme-color" content="#11111b" />
+
+
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+
+  <link rel="stylesheet" href="../../assets/css/blog.css" />
+
+
+
+  <!-- Highlight.js -->
+
+  <link
+
+    rel="stylesheet"
+
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/base16/catppuccin-mocha.min.css"
+
+  />
+
+</head>
+
+
+
+<body data-cwd="\~/blog/mathematical-laboratory" data-root="../../">
+
+
+
+  <div class="wallpaper" aria-hidden="true"></div>
+
+
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+
+
+  <header class="panel">
+
+    <div class="panel-left">
+
+      <a class="panel-brand" href="../../">TaHooR</a>
+
+
+
+      <ul class="workspaces">
+
+        <li><a href="../../"><span class="ws-num">1</span>home</a></li>
+
+        <li><a href="../../about/"><span class="ws-num">2</span>about</a></li>
+
+        <li><a aria-current="page" href="../"><span class="ws-num">3</span>blog</a></li>
+
+        <li><a href="../../poetry/"><span class="ws-num">4</span>poetry</a></li>
+
+        <li><a href="../../stats/"><span class="ws-num">5</span>stats</a></li>
+
+
+
+      </ul>
+
+    </div>
+
+
+
+    <div class="panel-center">
+
+      <span>
+
+        &copy; 2026 &middot;
+
+        <a href="https://github.com/TaH00R" target="\_blank" rel="noopener">TaHooR</a>
+
+        &middot; running on <span>arch btw</span>
+
+      </span>
+
+    </div>
+
+
+
+    <div class="panel-right">
+
+      <span class="panel-swatches" aria-hidden="true">
+
+        <i class="sw-red"></i>
+
+        <i class="sw-yellow"></i>
+
+        <i class="sw-green"></i>
+
+        <i class="sw-blue"></i>
+
+        <i class="sw-mauve"></i>
+
+      </span>
+
+      <span class="panel-clock"></span>
+
+    </div>
+
+  </header>
+
+
+
+  <main id="main" class="desktop desktop-surface blog-page">
+
+    <section class="terminal window blog-terminal">
+
+
+
+      <div class="term-titlebar">
+
+        <span class="term-dots" aria-hidden="true">
+
+          <i class="dot-red"></i>
+
+          <i class="dot-yellow"></i>
+
+          <i class="dot-green"></i>
+
+        </span>
+
+
+
+        <span class="term-title">
+
+          <b>TaHooR@arch</b>: \~/blog/mathematical-laboratory
+
+        </span>
+
+
+
+        <span></span>
+
+      </div>
+
+
+
+      <div class="term-body">
+
+        <div class="blog-layout">
+
+
+
+          <article>
+
+<header>
+  <h1>I Built a Mathematical Laboratory Because Equations Deserve Better Than a Whiteboard</h1>
+  <div class="post-meta">
+    <span class="meta-item">31 Oct 2026</span><span class="meta-sep">·</span>
+    <span class="meta-item">Mathematics</span><span class="meta-sep">·</span>
+    <span class="meta-item">Interactive Experiments</span>
+  </div>
+  <div class="post-tags">
+    <span class="tag">#Mathematics</span><span class="tag">#JavaScript</span>
+    <span class="tag">#Visualization</span><span class="tag">#Simulation</span>
+  </div>
+</header>
+<p>Mathematics has a marketing problem. Someone writes down a beautiful equation, puts it in a textbook, and then expects me to appreciate it while it sits there doing absolutely nothing.</p>
+<p>I wanted to <em>poke</em> the equations. Change a number. Drag a point. Start a simulation. Watch everything go wrong for reasons that are, annoyingly, mathematically correct.</p>
+<p>So I made <strong>Mathematical Laboratory</strong>: a collection of <strong>50 interactive experiments</strong> built with HTML, CSS and JavaScript. It covers fractals, chaos, probability, number theory, geometry, calculus and a few subjects that refuse to stay politely inside one category.</p>
+<blockquote>The point wasn't to make 50 pretty animations. It was to make the difference between <em>knowing a formula</em> and <em>understanding what it does</em> a little smaller.</blockquote>
+
+<h2 id="why">01 · Why Build a Mathematical Laboratory?</h2>
+<p>There is a big difference between reading “small changes in initial conditions can lead to large differences later” and watching two pendulums with almost identical starting angles drift into completely different trajectories.</p>
+<p>Or reading that random experiments converge to predictable probabilities, versus actually running the trials and watching the results wobble around before settling down.</p>
+<p>I wanted a place to do those experiments without installing a giant mathematical software stack or starting a new project for every equation. Open a page, touch the controls, and immediately get something worth asking questions about.</p>
+<p>That also meant keeping the experiments independent. Every model gets its own page and implementation, but the interface and basic interactions feel familiar across the collection.</p>
+
+<h2 id="catalogue">02 · Fifty Experiments, Several Rabbit Holes</h2>
+<p>The <a href = "https://experiments.tahoor.dev" target="_blank" rel="noopener">homepage</a>  is a catalogue, not one massive simulation pretending to do everything. The 50 entries are grouped into topics, and every page is an invitation to play with a particular idea.</p>
+<table><thead><tr><th>Area</th><th>Things you can investigate</th></tr></thead><tbody>
+<tr><td>Fractals &amp; chaos</td><td>Mandelbrot, Burning Ship, Newton fractals, strange attractors, cellular automata and the chaos game</td></tr>
+<tr><td>Probability</td><td>Monty Hall, birthdays, random walks, Bayes, Markov chains, percolation and Monte Carlo experiments</td></tr>
+<tr><td>Calculus &amp; numerical methods</td><td>Derivatives, integration, Taylor series, Runge–Kutta, Fourier transforms and gradient descent</td></tr>
+<tr><td>Geometry &amp; linear algebra</td><td>Voronoi diagrams, Möbius strips, eigenvectors, convex hulls, Delaunay triangulation and geodesics</td></tr>
+<tr><td>Number theory</td><td>Prime spirals, factorization, prime gaps and the Collatz process</td></tr>
+</tbody></table>
+<p>And then there are experiments like mathematical music, the double-slit simulation, N-body gravity and a universe drawn using the golden angle. Apparently I wasn't particularly interested in keeping the syllabus under control.</p>
+
+<h2 id="fractals">03 · Fractals: One Rule, Ridiculous Complexity</h2>
+<p>The Mandelbrot set is the clearest example of how much visual complexity can hide inside a tiny rule. Start with zero, repeatedly square the complex value and add a constant:</p>
+<pre data-filename="mandelbrot equation"><code class="language-text">z₀ = 0
+zₙ₊₁ = zₙ² + c
+
+If the orbit escapes, color the point by
+how many iterations it took to escape.</code></pre>
+<p>That's the trick. Each pixel represents a different complex number <code>c</code>, and its color depends on what happens when the recurrence runs. The boundary is where the interesting things happen; zoom in and familiar-looking structures keep giving way to more detail.</p>
+<p>The original Mandelbrot explorer has its own deep-zoom implementation, including GPU rendering. The broader fractal explorer is a separate, more bounded playground. Those aren't interchangeable claims: the latter caps its zoom, while the dedicated Mandelbrot page is designed to go dramatically deeper.</p>
+<p>The Burning Ship fractal adds absolute values to the real and imaginary coordinates before squaring. Newton fractals turn numerical root finding into colored regions of attraction. Similar ingredients, wildly different pictures.</p>
+<pre data-filename="burning ship"><code class="language-text">zₙ₊₁ = (|Re(zₙ)| + i|Im(zₙ)|)² + c</code></pre>
+<p>A tiny change to an iteration rule can reshape an entire mathematical world. That's a better demonstration than staring at the formula and politely nodding.</p>
+
+<h2 id="chaos">04 · Chaos Is Not the Same as Randomness</h2>
+<p>The double pendulum is one of my favorite examples. Two linked pendulums obey deterministic equations, yet two nearly identical starting configurations can become visibly different as time passes.</p>
+<p>The strange-attractor experiment explores the same broader idea from another direction: a trajectory can stay in a bounded region without settling into a simple loop. You get structure without easy long-term prediction.</p>
+<p>And with reaction–diffusion, the apparent chaos becomes spots, stripes and moving boundaries. The Gray–Scott model combines diffusion with reactions, making pattern formation something you can influence by changing the parameters.</p>
+<pre data-filename="reaction diffusion"><code class="language-text">∂u/∂t = Dᵤ∇²u − uv² + f(1 − u)
+
+Diffusion spreads concentrations.
+Reaction and feed terms reshape the pattern.</code></pre>
+<p>In all three cases the fun is not just watching motion. It's changing one input and noticing exactly when your intuition stops being useful.</p>
+
+<h2 id="probability">05 · Probability Is Much More Convincing When It Misbehaves</h2>
+<p>Consider the Monty Hall problem. Three doors, one prize, and a host who knows where the prize is. After the host opens a losing door, switching gives a <strong>2/3</strong> chance of winning under the standard rules, instead of the <strong>1/3</strong> chance from staying.</p>
+<p>On paper that result seems suspicious. With repeated simulated games, it becomes much harder to argue with.</p>
+<pre data-filename="monty hall"><code class="language-text">Standard Monty Hall setup:
+
+P(win | always stay)   = 1/3
+P(win | always switch) = 2/3</code></pre>
+<p>The probability section also covers the birthday problem, Galton boards, Buffon's needle, gambler's ruin, random walks, Bayesian updating, Markov chains, percolation and Monte Carlo sampling. Each takes a different route to the same lesson: individual outcomes can be messy even when the underlying statistics are precise.</p>
+<p>These are simulated trials, not magic proof machines. A finite run will fluctuate around a theoretical answer. That's part of what makes them worth watching.</p>
+
+<h2 id="geometry">06 · Geometry Isn't Always Flat, Straight or Sensible</h2>
+<p>The Voronoi experiment divides space according to whichever seed point is closest. Move one seed, and its territory changes. Switch the distance metric, and even the meaning of “closest” changes.</p>
+<p>The Möbius strip explores a surface with one continuous side and one boundary. Hyperbolic geometry uses the Poincaré disk to represent an infinite geometry inside a finite circle. Geodesics compare routes on a sphere, where the locally shortest path is not generally a straight-looking line on a flat map.</p>
+<p>There's more computational geometry here too: convex hulls, Delaunay triangulation, Bézier curves, sphere projections and a traveling-salesman route explorer.</p>
+<blockquote>Sometimes the most useful mathematical question is simply: “What happens if I drag this point over there?”</blockquote>
+<p>The traveling-salesman demo is deliberately an approximation: nearest-neighbor followed by 2-opt improvements, not an exact solver that guarantees the shortest possible tour. That distinction matters.</p>
+
+<h2 id="calculus">07 · Calculus and Numerical Methods, Without the Handwaving</h2>
+<p>For calculus, I wanted to see approximations <em>fail</em> as well as succeed. The numerical-methods race compares Euler, midpoint and fourth-order Runge–Kutta on the same differential equation:</p>
+<pre data-filename="numerical methods"><code class="language-text">y′ = y,  y(0) = 1
+
+Exact solution: y(t) = eᵗ
+
+Compare:
+  Euler
+  Midpoint
+  RK4</code></pre>
+<p>Change the step size and watch the error change. Taylor series show how derivatives near one point can approximate a function. Integration experiments compare rectangles, trapezoids and Simpson's rule. Gradient descent turns “move against the gradient” into a path you can follow.</p>
+<p>Fourier epicycles reconstruct a drawing by adding rotating circles. The Fourier transform experiment decomposes a sampled signal into frequency components. Mathematical music builds waveforms from harmonics, showing that a relatively small mathematical description can change what a sound would be like.</p>
+<p>Under the hood, these are finite numerical models, with real limits on sampling, precision, step sizes and supported expressions. Those limitations aren't bugs in mathematics; they're part of doing mathematics with a computer.</p>
+
+<h2 id="architecture">08 · How the Laboratory Is Built</h2>
+<p>Despite the number of demos, this is a static web project. The repository documents <strong>no installation and no build step</strong> for normal browsing: open the homepage, or serve the folder locally if you prefer HTTP.</p>
+<pre data-filename="repository structure"><code class="language-text">mathematical-laboratory/
+├── index.html
+├── experiments.js
+├── shared.css
+├── shared/
+│   ├── lab.js
+│   └── math.js
+├── 01-mandelbrot/
+│   ├── index.html
+│   ├── style.css
+│   ├── script.js
+│   └── README.md
+├── 02-burning-ship/
+├── ...
+└── 50-mathematical-universe/</code></pre>
+<p>The catalogue lives in <code>experiments.js</code>. Individual experiment folders own their simulation model, parameters, presets and explanations. The shared laboratory module provides canvas and control primitives, while the shared math module collects reusable numerical helpers.</p>
+<p>That separation matters: one demo doesn't need to import another demo's physics or mathematical assumptions just to draw a point on the screen.</p>
+<pre data-filename="run locally"><code class="language-bash"># from the project directory
+python -m http.server 8000
+
+# then open http://localhost:8000</code></pre>
+
+<h2 id="interaction">09 · The Controls Are Part of the Explanation</h2>
+<p>Every experiment gives you a short concept explanation, a formula and something to try. Controls sit beside the visualization on desktop and move below it on smaller screens. You can manipulate relevant points and shapes with a mouse or touch.</p>
+<p>For dynamic simulations, there are Pause, Step and Reset controls. Presets give useful starting configurations; Restart keeps your current parameters. View controls handle scale, line weight and the reference grid. Save PNG and Fullscreen let you keep the interesting accidents.</p>
+<p>There are deliberate quality-of-life details too: normal scrolling doesn't accidentally pan a graph, reduced-motion preferences start new animations paused, and sound only starts after an explicit action.</p>
+<p>A laboratory is only useful if experimenting feels natural instead of like you're fighting the interface.</p>
+
+<h2 id="testing">10 · Making Sure Fifty Demos Don't Turn Into Fifty Bugs</h2>
+<p>There are documented checks for mathematical reference calculations, expression parsing, model independence, presets, parameters and project links. A separate browser check covers desktop and narrow viewport sizes, control extremes and selected screenshots.</p>
+<pre data-filename="verification"><code class="language-bash">node --test tests/math.test.js tests/projects.test.js
+node tests/browser-check.js</code></pre>
+<p>The browser check is optional, uses Microsoft Edge on Windows and doesn't require npm dependencies. These commands are the documented verification workflow; I'm not claiming a fresh test run or a performance benchmark here.</p>
+<p>There's also an honest numerical scope: finite iterations for fractals, softened fixed-step N-body gravity, approximate route optimization, sampled integrals and trial counts that can only estimate probabilities. Putting numbers on a screen doesn't make their assumptions disappear.</p>
+
+<h2 id="lessons">11 · What I Took Away From This</h2>
+<p>The first lesson is that mathematical understanding gets better when you can vary the inputs. You stop memorizing what the answer is supposed to look like and start developing a feel for <em>why</em> it looks that way.</p>
+<p>The second is that visualization forces you to confront implementation details. A beautiful formula might need discretization, numerical safeguards, finite precision, iteration limits and a reasonably sensible user interface before it becomes a usable experiment.</p>
+<p>The third is that a collection of small independent experiments can be more useful than one giant, complicated application. Each page has a question, a model and some room to play.</p>
+<p>Also, it turns out that doing mathematics with sliders is an excellent way to lose track of an afternoon.</p>
+
+<h2 id="coolness">12 · The Completely Unbiased Coolness Report</h2>
+<p>The following results have not been reviewed by any respectable journal.</p>
+<pre data-filename="laboratory-status.sh"><code class="language-bash">$ ./evaluate-life-choices
+
+[✓] 50 interactive experiments
+[✓] fractals that refuse to stop fractaling
+[✓] pendulums demonstrating chaos
+[✓] probabilities arguing with intuition
+[✓] geometry being geometrically suspicious
+[✓] numerical methods making errors visibly
+[✓] zero mandatory build steps
+
+[?] should probably study actual coursework
+
+verdict: mathematics is significantly less boring
+confidence: visually compelling
+exit code: 0</code></pre>
+
+<h2 id="source">13 · Source and How to Explore It</h2>
+<p>Start with the <a href="https://github.com/TaH00R/mathematical-laboratory" target="_blank" rel="noopener">project's</a> <code>index.html</code> catalogue. Pick a topic, open the experiment, read its formula, then change one control at a time. The README in each experiment folder explains the model and a few useful things to try.</p>
+<p>Nothing here is a replacement for a proof or a high-precision scientific solver. It's a place to make abstract ideas concrete, notice patterns, and ask better questions.</p>
+<hr />
+<p><strong>I built the Mathematical Laboratory because I wanted equations to do something instead of just sitting in a notebook looking important.</strong></p>
+<p>Fifty experiments later, I think they got the message.</p>
+
+</article>
+
+
+
+          <aside class="toc"></aside>
+
+
+
+        </div>
+
+      </div>
+
+
+
+    </section>
+
+  </main>
+
+
+
+  <script src="../../assets/data/site.js"></script>
+
+  <script src="../../assets/data/projects.js"></script>
+
+  <script src="../../assets/data/skills.js"></script>
+
+  <script src="../../assets/data/socials.js"></script>
+
+  <script src="../../assets/data/about.js"></script>
+
+  <script src="../../assets/data/poetry.js"></script>
+
+  <script src="../../assets/data/stats.js"></script>
+
+  <script src="../../assets/data/blogs.js"></script>
+
+  <script src="../../assets/data/fortunes.js"></script>
+
+  <script src="../../assets/data/music.js"></script>
+
+
+
+  <script src="../../assets/js/app.js"></script>
+
+  <script src="../../assets/js/filesystem.js"></script>
+
+  <script src="../../assets/js/terminal.js"></script>
+
+  <script src="../../assets/js/desktop.js"></script>
+
+
+
+  <script src="../../assets/js/toc.js"></script>
+
+
+
+  <script
+
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js">
+
+  </script>
+
+
+
+  <script
+
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/http.min.js">
+
+  </script>
+
+
+
+  <script
+
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js">
+
+  </script>
+
+
+
+  <script src="../../assets/js/hljs-init.js"></script>
+
+
+
+</body>
+
+</html>
