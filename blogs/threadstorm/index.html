@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>ThreadStorm • TaHooR</title>
+  <meta
+    name="description"
+    content="I built a custom Java task execution engine with worker threads, priority scheduling, retries, cancellation, metrics and a terminal dashboard. Here's what I learned."
+  />
+  <meta name="theme-color" content="#11111b" />
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/blog.css" />
+
+  <!-- Highlight.js -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/base16/catppuccin-mocha.min.css"
+  />
+</head>
+
+<body data-cwd="~/blog/threadstorm" data-root="../../">
+
+  <div class="wallpaper" aria-hidden="true"></div>
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="panel">
+    <div class="panel-left">
+      <a class="panel-brand" href="../../">TaHooR</a>
+
+      <ul class="workspaces">
+        <li><a href="../../"><span class="ws-num">1</span>home</a></li>
+        <li><a href="../../about/"><span class="ws-num">2</span>about</a></li>
+        <li><a aria-current="page" href="../"><span class="ws-num">3</span>blog</a></li>
+        <li><a href="../../poetry/"><span class="ws-num">4</span>poetry</a></li>
+        <li><a href="../../stats/"><span class="ws-num">5</span>stats</a></li>
+      </ul>
+    </div>
+
+    <div class="panel-center">
+      <span>
+        &copy; 2026 &middot;
+        <a href="https://github.com/TaH00R" target="_blank" rel="noopener">TaHooR</a>
+        &middot; running on <span>arch btw</span>
+      </span>
+    </div>
+
+    <div class="panel-right">
+      <span class="panel-swatches" aria-hidden="true">
+        <i class="sw-red"></i>
+        <i class="sw-yellow"></i>
+        <i class="sw-green"></i>
+        <i class="sw-blue"></i>
+        <i class="sw-mauve"></i>
+      </span>
+      <span class="panel-clock"></span>
+    </div>
+  </header>
+
+  <main id="main" class="desktop desktop-surface blog-page">
+    <section class="terminal window blog-terminal">
+
+      <div class="term-titlebar">
+        <span class="term-dots" aria-hidden="true">
+          <i class="dot-red"></i>
+          <i class="dot-yellow"></i>
+          <i class="dot-green"></i>
+        </span>
+
+        <span class="term-title">
+          <b>TaHooR@arch</b>: ~/blog/threadstorm
+        </span>
+
+        <span></span>
+      </div>
+
+      <div class="term-body">
+        <div class="blog-layout">
+
+          <article>
+
+            <header>
+              <h1>I Built My Own Java Concurrency Engine. It Got a Little Out of Hand.</h1>
+
+              <div class="post-meta">
+                <span class="meta-item">04 Nov 2026</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">Java</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">Concurrency</span>
+              </div>
+
+              <div class="post-tags">
+                <span class="tag">#Java</span>
+                <span class="tag">#Concurrency</span>
+                <span class="tag">#Multithreading</span>
+                <span class="tag">#Systems</span>
+              </div>
+            </header>
+
+            <p>
+              I was learning Java threads. At some point, the usual examples started feeling a little too polite.
+              Create a thread, print something, join it, congratulations, everyone goes home.
+            </p>
+
+            <p>
+              But what happens when an application has a lot of work to do? Who decides which task runs first?
+              What happens when the queue is full, a task fails, someone cancels it, or the whole engine needs
+              to shut down without leaving work stranded?
+            </p>
+
+            <p>
+              I wanted to understand those problems by building the machinery myself. So I made
+              <strong>ThreadStorm</strong>: a custom Java task execution engine built around a bounded task queue
+              and a pool of reusable worker threads.
+            </p>
+
+            <blockquote>
+              The goal was never to replace Java's concurrency libraries. It was to stop treating concurrency
+              like a collection of magic methods and understand what an execution system actually has to manage.
+            </blockquote>
+
+            <p>
+              This is the story of how that happened, what ThreadStorm can do, what it absolutely cannot do,
+              and why my benchmark results humbled me just enough to keep the project interesting.
+            </p>
+
+            <!-- =========================================================
+                 01 — WHY
+                 ========================================================= -->
+
+            <h2 id="why">01 · Why I Built This</h2>
+
+            <p>
+              Learning threads individually is one thing. Coordinating a bunch of them without accidentally
+              creating a tiny disaster is another.
+            </p>
+
+            <p>
+              A thread is an execution path. A task is a unit of work. They are related, but they are not the
+              same thing. If every incoming task gets its own brand-new thread, the application has to deal
+              with thread creation costs, resource limits and lifecycle management over and over again.
+            </p>
+
+            <p>
+              A worker pool gives us a different model: create a fixed number of workers, give them work from
+              a shared queue, and let them keep going until the engine shuts down.
+            </p>
+
+            <p>
+              Java already provides <code>ExecutorService</code>, which does this kind of job very well.
+              I could have just used that and moved on with my life. Unfortunately, that would have defeated
+              the point of the exercise.
+            </p>
+
+            <p>
+              I wanted to implement the queue, worker lifecycle, scheduling rules, task tracking and failure
+              handling myself. Basically, I wanted to find out how many ways a few threads can make you question
+              your life choices.
+            </p>
+
+            <!-- =========================================================
+                 02 — THE IDEA
+                 ========================================================= -->
+
+            <h2 id="idea">02 · What Is ThreadStorm, Exactly?</h2>
+
+            <p>
+              ThreadStorm is a small task execution engine. An application submits tasks to it, the engine
+              places accepted tasks into a bounded queue, and a fixed pool of workers takes those tasks and
+              executes them.
+            </p>
+
+            <p>
+              The important word here is <em>bounded</em>. The queue has a maximum capacity. Without a limit,
+              a producer could keep submitting work faster than workers can process it until the application
+              runs out of memory. ThreadStorm makes queue pressure an explicit part of the API.
+            </p>
+
+            <pre data-filename="threadstorm architecture"><code class="language-text">             YOUR APPLICATION
+                    |
+                    | submit(task, priority)
+                    v
+          +-----------------------+
+          |     THREADSTORM       |
+          |                       |
+          |  lifecycle + metrics  |
+          +-----------+-----------+
+                      |
+                      v
+          +-----------------------+
+          |   BOUNDED TASK QUEUE  |
+          |                       |
+          |  CRITICAL / HIGH      |
+          |  NORMAL / LOW         |
+          |  priority aging       |
+          +-----------+-----------+
+                      |
+             +--------+--------+
+             |        |        |
+             v        v        v
+          Worker 1 Worker 2 Worker 3
+             |        |        |
+             +--------+--------+
+                      |
+                      v
+             TASK RESULT / STATUS
+               |             |
+               v             v
+            METRICS      DEAD LETTER
+                         QUEUE (failed)
+</code></pre>
+
+            <p>
+              A worker does not need to know where a task came from. It takes the next eligible task, executes
+              it, updates its state and moves on. The application does not need to manage individual worker
+              threads either. It talks to the engine through task submissions and task handles.
+            </p>
+
+            <h3>The main pieces</h3>
+
+            <ul>
+              <li><code>ThreadStorm</code> is the public engine facade and owns the lifecycle.</li>
+              <li><code>TaskQueue</code> stores pending work and decides which task should be taken next.</li>
+              <li><code>Worker</code> is a reusable thread that takes and executes tasks.</li>
+              <li><code>TaskHandle</code> lets the caller inspect, await or cancel an accepted task.</li>
+              <li><code>TaskContext</code> gives a running task information about its execution and cooperative checkpoints.</li>
+              <li><code>MetricsCollector</code> records task and worker activity.</li>
+              <li><code>DeadLetterQueue</code> retains tasks that have exhausted their retry attempts.</li>
+            </ul>
+
+            <!-- =========================================================
+                 03 — THREADS AND QUEUES
+                 ========================================================= -->
+
+            <h2 id="workers">03 · Workers, Queues and the Producer–Consumer Problem</h2>
+
+            <p>
+              The core of ThreadStorm is a classic producer–consumer setup. The application is the producer:
+              it submits work. The workers are consumers: they wait for work, take it from the queue and execute it.
+            </p>
+
+            <p>
+              The queue is shared state, which means multiple threads may try to interact with it at the same
+              time. That is where synchronization matters.
+            </p>
+
+            <p>
+              ThreadStorm's queue uses synchronized methods and the monitor's <code>wait()</code> and
+              <code>notifyAll()</code> mechanism. A worker that finds the queue empty waits instead of spinning
+              in a loop and burning CPU. When a task is submitted, waiting workers are notified.
+            </p>
+
+            <pre data-filename="simplified worker loop"><code class="language-java">while (!isInterrupted()) {
+    TaskEnvelope task = queue.take();
+
+    if (task == null) {
+        break;
+    }
+
+    if (!task.getHandle().tryStart(getName())) {
+        continue;
+    }
+
+    execute(task);
+}</code></pre>
+
+            <p>
+              This is deliberately simplified, but it captures the shape of the worker loop. The actual worker
+              also handles retries, cancellation, timeouts, status transitions, metrics and dead-letter recording.
+            </p>
+
+            <h3>Why a fixed worker pool?</h3>
+
+            <p>
+              Suppose an application submits 100 tasks and the engine has 4 workers. At most 4 tasks are
+              executing at a time. The remaining tasks wait in the queue until a worker becomes available.
+              The engine reuses those same 4 threads instead of creating 100 threads.
+            </p>
+
+            <pre data-filename="worker pool"><code class="language-text">100 submitted tasks
+        |
+        v
++-----------------------+
+|       TASK QUEUE      |
++-----------------------+
+        |
+   +----+----+----+
+   |    |    |    |
+   v    v    v    v
+  W1   W2   W3   W4
+
+Only four tasks execute at once.
+The rest wait for an available worker.</code></pre>
+
+            <p>
+              More threads are not automatically better. Threads have overhead, and the machine still has a
+              finite number of CPU cores and other resources. The useful worker count depends on the workload.
+            </p>
+
+            <!-- =========================================================
+                 04 — SCHEDULING
+                 ========================================================= -->
+
+            <h2 id="scheduling">04 · Priority Scheduling, Without Letting LOW Wait Forever</h2>
+
+            <p>
+              Not every task is equally urgent. A task queue that treats every task identically is simple,
+              but sometimes an application needs important work to be picked up first.
+            </p>
+
+            <p>
+              ThreadStorm supports four priorities:
+            </p>
+
+            <pre data-filename="priority levels"><code class="language-text">CRITICAL  -> highest priority
+HIGH
+NORMAL
+LOW       -> lowest priority</code></pre>
+
+            <p>
+              The queue selects the task with the highest <em>effective</em> priority. If two tasks have the
+              same effective priority, the earlier enqueued task wins.
+            </p>
+
+            <p>
+              But there is a problem with priority queues: starvation. If high-priority work keeps arriving,
+              a low-priority task could sit there forever.
+            </p>
+
+            <p>
+              ThreadStorm uses <strong>priority aging</strong>. Every configured aging interval that a task
+              waits, its effective priority moves up one level, up to the highest level. The default interval
+              in the queue is five seconds.
+            </p>
+
+            <pre data-filename="priority aging example"><code class="language-text">A LOW task waits...
+
+After one aging interval:    NORMAL
+After two intervals:         HIGH
+After three intervals:       CRITICAL
+
+Eventually, waiting work gets a chance.</code></pre>
+
+            <p>
+              This is a small scheduling policy, not a magical fairness guarantee under every possible workload.
+              But it makes the trade-off explicit: urgent work gets preference, while older work gradually gets
+              promoted.
+            </p>
+
+            <!-- =========================================================
+                 05 — TASK HANDLES
+                 ========================================================= -->
+
+            <h2 id="handles">05 · A Task Is More Than a Runnable</h2>
+
+            <p>
+              Submitting work and forgetting about it is fine for some fire-and-forget jobs. But a useful task
+              engine should let the caller ask: did my task run? Is it still waiting? Did it fail? Can I cancel it?
+            </p>
+
+            <p>
+              That's what <code>TaskHandle</code> is for. Every accepted task gets a handle with an ID, a status,
+              timestamps, attempt count, worker name and failure information.
+            </p>
+
+            <pre data-filename="task lifecycle"><code class="language-text">       QUEUED
+          |
+          v
+       RUNNING
+       /  |  \
+      /   |   \
+     v    v    v
+SUCCEEDED FAILED CANCELLED</code></pre>
+
+            <p>
+              The state is managed with an <code>AtomicReference</code>, and transitions use compare-and-set
+              operations. That matters because cancellation and worker execution can race with each other.
+              We don't want two threads casually deciding the same task has two different outcomes.
+            </p>
+
+            <p>
+              The handle also exposes a <code>CompletionStage</code>, so callers can react to completion
+              asynchronously instead of always blocking a thread while waiting.
+            </p>
+
+            <!-- =========================================================
+                 06 — USING IT
+                 ========================================================= -->
+
+            <h2 id="using">06 · Using ThreadStorm</h2>
+
+            <p>
+              The public API is intentionally small. Create an engine, start it, submit tasks, inspect their
+              handles if needed, and shut the engine down when you're finished.
+            </p>
+
+            <pre data-filename="Demo.java"><code class="language-java">import core.Priority;
+import core.ThreadStorm;
+import task.TaskHandle;
+
+public class Demo {
+    public static void main(String[] args) throws InterruptedException {
+        ThreadStorm engine = new ThreadStorm(3, 10);
+
+        engine.start();
+
+        try {
+            for (int i = 1; i <= 5; i++) {
+                final int taskNumber = i;
+
+                TaskHandle handle = engine.submit(context -> {
+                    System.out.println(
+                        "Task " + taskNumber +
+                        " running on " + context.getWorkerName()
+                    );
+
+                    Thread.sleep(1000);
+                    System.out.println("Task " + taskNumber + " finished");
+                }, Priority.NORMAL);
+
+                System.out.println("Submitted " + handle.getId());
+            }
+        } finally {
+            engine.shutdown();
+        }
+    }
+}</code></pre>
+
+            <p>
+              Here, the engine has three workers and a queue capacity of ten. Five tasks are submitted.
+              Up to three can run at once; the others wait for a worker. The default submission policy blocks
+              when the queue is full until capacity becomes available.
+            </p>
+
+            <p>
+              The <code>shutdown()</code> call stops new submissions, closes the queue and waits for accepted
+              queued work to drain before the workers terminate. In other words, it is a graceful shutdown,
+              not an abrupt "good luck everybody" situation.
+            </p>
+
+            <!-- =========================================================
+                 07 — RESILIENCE
+                 ========================================================= -->
+
+            <h2 id="resilience">07 · When Tasks Fail, Get Cancelled or Take Too Long</h2>
+
+            <p>
+              Real work fails. A network request times out, a file is missing, an API returns an error, or
+              somebody writes a task that throws an exception. An execution engine needs a policy for that.
+            </p>
+
+            <h3>Retries and backoff</h3>
+
+            <p>
+              ThreadStorm supports configurable retry policies. A policy specifies the maximum number of retries,
+              an initial delay and a multiplier for exponential backoff.
+            </p>
+
+            <pre data-filename="retry policy"><code class="language-java">RetryPolicy retry = new RetryPolicy(
+    3,      // maximum retries
+    1000,   // initial delay in milliseconds
+    2.0     // backoff multiplier
+);</code></pre>
+
+            <p>
+              With those settings, retries are delayed by approximately 1, 2 and 4 seconds. The original task
+              remains one logical task, while its attempt count increases. If it still fails after exhausting
+              its retries, ThreadStorm marks it failed, records the failure and adds an entry to the
+              Dead Letter Queue.
+            </p>
+
+            <h3>Cancellation</h3>
+
+            <p>
+              A queued task can be marked cancelled before a worker starts it. A running task is different:
+              Java does not provide a safe general-purpose way to forcibly stop arbitrary code running on a thread.
+            </p>
+
+            <p>
+              ThreadStorm therefore uses <strong>cooperative cancellation</strong>. A running task can check
+              its <code>TaskContext</code> at checkpoints. If cancellation has been requested, the checkpoint
+              throws a cancellation exception and the task can stop.
+            </p>
+
+            <pre data-filename="cooperative cancellation"><code class="language-java">engine.submit(context -> {
+    while (hasMoreWork()) {
+        context.checkpoint();
+
+        processNextChunk();
+    }
+}, Priority.NORMAL);</code></pre>
+
+            <h3>Execution timeouts</h3>
+
+            <p>
+              Tasks can also be given an execution timeout. This is cooperative too: the timeout is detected
+              when the task reaches a checkpoint. It does not forcibly kill a worker or interrupt arbitrary
+              blocking code. That distinction is important, and I would rather be clear about it than claim
+              ThreadStorm can do something Java intentionally makes difficult.
+            </p>
+
+            <!-- =========================================================
+                 08 — COORDINATION
+                 ========================================================= -->
+
+            <h2 id="coordination">08 · Groups and Dependencies</h2>
+
+            <p>
+              Sometimes tasks are related. You might submit a batch of independent jobs and want to wait for
+              all of them, or you might have a sequence where one task should only run after another succeeds.
+            </p>
+
+            <p>
+              <code>TaskGroup</code> provides a way to collect related handles, inspect their statuses,
+              cancel the group or wait for all its current tasks to finish.
+            </p>
+
+            <p>
+              ThreadStorm also supports <code>submitAfter()</code> for task dependencies. It waits on the
+              dependency completion stages rather than parking one of the engine's workers just to wait.
+              The dependent task is submitted only after all dependencies have completed successfully.
+            </p>
+
+            <pre data-filename="task dependency"><code class="language-java">TaskHandle download = engine.submit(
+    context -> downloadFile(),
+    Priority.HIGH
+);
+
+engine.submitAfter(
+    List.of(download),
+    context -> processFile(),
+    Priority.NORMAL
+);</code></pre>
+
+            <p>
+              If the dependency does not succeed, the dependent task is not submitted. That keeps the dependency
+              rule explicit instead of hiding it inside a sleeping worker.
+            </p>
+
+            <!-- =========================================================
+                 09 — OBSERVABILITY
+                 ========================================================= -->
+
+            <h2 id="observability">09 · I Also Wanted to See What Was Happening</h2>
+
+            <p>
+              A concurrency engine is much harder to reason about if all you get is a final "done" message.
+              I wanted to see what workers were doing while the engine was running.
+            </p>
+
+            <p>
+              ThreadStorm's metrics collector records submitted, started, completed, failed, retried and
+              cancelled tasks, along with queue wait time and execution time. It also tracks worker states
+              and recent task events.
+            </p>
+
+            <p>
+              Then I built a terminal dashboard around those metrics. It has multiple pages for engine activity,
+              workers, queue state, task history, failures and related information. There is also a simpler
+              text CLI for terminals where a full-screen interface is not behaving.
+            </p>
+
+            <p>
+              The dashboard is not the engine. It is a view into the engine, which means the task execution
+              core can be used without opening the TUI at all.
+            </p>
+
+            <pre data-filename="launch ThreadStorm"><code class="language-powershell"># Full terminal dashboard
+.\run.ps1
+
+# Simpler text interface
+.\run.ps1 -Cli
+
+# Run the bundled test suite
+.\run.ps1 -Test
+
+# Start with custom worker and queue counts
+.\run.ps1 -Dashboard --workers 4 --capacity 128</code></pre>
+
+            <p>
+              The project targets Java 17 or newer and does not require external Java dependencies.
+              On Windows, the launcher also selects a JDK 17+ for both compilation and execution, which
+              saved me from a few rounds of arguing with mismatched Java installations.
+            </p>
+
+            <!-- =========================================================
+                 10 — TESTING
+                 ========================================================= -->
+
+            <h2 id="testing">10 · Testing the Things That Can Go Wrong</h2>
+
+            <p>
+              Concurrency bugs are especially annoying because a program can appear to work ten times and
+              fail on the eleventh run when two operations happen in a different order.
+            </p>
+
+            <p>
+              The project includes tests for priority scheduling, fault tolerance, observability, task
+              coordination, lifecycle handling, cancellation, TUI integration, benchmark smoke tests and
+              a stress test.
+            </p>
+
+            <pre data-filename="test run"><code class="language-powershell">.\run.ps1 -Test</code></pre>
+
+            <p>
+              The tests cover more than whether a task can print a message. They exercise transitions,
+              shutdown behaviour, retries, cancellation races and the integration between the engine and
+              its dashboard.
+            </p>
+
+            <p>
+              That does not prove the absence of every possible concurrency bug. It does mean the project
+              has a repeatable test suite for the behaviours I intended to support.
+            </p>
+
+            <!-- =========================================================
+                 11 — BENCHMARKS
+                 ========================================================= -->
+
+            <h2 id="benchmarks">11 · Benchmarking: Java's ExecutorService Is Annoyingly Good</h2>
+
+            <p>
+              I included a small benchmark runner to compare three ways of executing the same deterministic,
+              CPU-bound workload:
+            </p>
+
+            <ul>
+              <li>Sequential execution on the calling thread.</li>
+              <li>A fixed-size Java <code>ExecutorService</code>.</li>
+              <li>ThreadStorm using the same worker count.</li>
+            </ul>
+
+            <p>
+              The checked-in benchmark results use 2,000 tasks, 20,000 integer-mixing iterations per task,
+              one warm-up and three measured runs. Here are the median results from those three runs:
+            </p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Implementation</th>
+                  <th>Median time</th>
+                  <th>Median tasks/s</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sequential</td>
+                  <td>112.29 ms</td>
+                  <td>17,811.5</td>
+                </tr>
+                <tr>
+                  <td>ExecutorService</td>
+                  <td>31.31 ms</td>
+                  <td>63,872.1</td>
+                </tr>
+                <tr>
+                  <td><strong>ThreadStorm</strong></td>
+                  <td>42.20 ms</td>
+                  <td>47,396.6</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p>
+              In this particular run, both concurrent approaches beat sequential execution. ThreadStorm
+              processed more tasks per second than the sequential version, but it did not beat
+              <code>ExecutorService</code>. The JDK implementation was roughly 1.35 times faster by
+              throughput in this dataset.
+            </p>
+
+            <p>
+              And that's completely fine. ThreadStorm does more bookkeeping around each task: it creates
+              handles and envelopes, updates atomic states, records metrics, applies scheduling rules and
+              coordinates its own queue. That functionality has a cost.
+            </p>
+
+            <blockquote>
+              The benchmark does not prove that ThreadStorm is faster than Java's executor. It shows that
+              this implementation can execute concurrent work, while making the overhead of its extra
+              machinery visible.
+            </blockquote>
+
+            <p>
+              There are limitations here. This is a small, dependency-free comparative harness, not a
+              publication-quality microbenchmark. It uses one machine, one workload shape and three measured
+              runs. A serious performance comparison needs more workload types, more repetitions, careful
+              environment control and a proper tool such as JMH.
+            </p>
+
+            <p>
+              I would rather publish an honest result where the standard library wins than manufacture a
+              graph where my project wins. The point was to learn, not to defeat a class from the JDK in a
+              benchmark cage match.
+            </p>
+
+            <!-- =========================================================
+                 12 — WHAT I LEARNED
+                 ========================================================= -->
+
+            <h2 id="lessons">12 · What I Actually Learned</h2>
+
+            <p>
+              The biggest lesson was that multithreading is not just about starting multiple threads.
+              The difficult part is coordinating shared state and defining what should happen when operations
+              overlap.
+            </p>
+
+            <p>
+              I got a much more concrete understanding of the producer–consumer pattern, monitor-based
+              synchronization, atomic state transitions, worker pools, task scheduling and lifecycle management.
+              I also learned that cancellation is a protocol between the engine and the task, not a magic
+              button that safely kills arbitrary Java code.
+            </p>
+
+            <p>
+              Another lesson: adding features to a concurrency system is easy compared to making their
+              interactions predictable. Cancellation can race with task startup. Shutdown can race with
+              submission. A retry changes the task's lifecycle. Metrics need to stay consistent while all
+              of this is happening.
+            </p>
+
+            <p>
+              And finally, building something yourself does not automatically make it better than the
+              standard library. Sometimes the standard library is faster, more battle-tested and maintained
+              by people who have spent a very long time thinking about the exact problem you just discovered.
+              Rude, but fair.
+            </p>
+
+            <!-- =========================================================
+                 14 — LIMITATIONS
+                 ========================================================= -->
+
+            <h2 id="limitations">13 · What ThreadStorm Is Not</h2>
+
+            <p>
+              ThreadStorm is a learning project and a custom execution engine, not a production-ready
+              replacement for <code>ExecutorService</code>, Spring's task execution facilities or a
+              distributed job queue.
+            </p>
+
+            <p>
+              It runs tasks inside one JVM. It does not persist tasks across process crashes, distribute
+              work across machines, or provide durable exactly-once execution. Its cancellation and timeout
+              behaviour is cooperative, and its benchmark suite is not a substitute for a dedicated
+              benchmarking framework.
+            </p>
+
+            <p>
+              Those are not hidden footnotes. They are useful boundaries for understanding what the project
+              currently demonstrates and what would need to change before using something like this for
+              production workloads.
+            </p>
+
+            <!-- =========================================================
+                 15 — SOURCE
+                 ========================================================= -->
+
+            <h2 id="source">14 · Source Code</h2>
+
+            <p>
+              ThreadStorm is available on GitHub. The repository includes the engine, task abstractions,
+              metrics, terminal interfaces, tests, launch scripts and benchmark runner.
+            </p>
+
+            <p>
+              <a href="https://github.com/TaH00R/threadstorm" target="_blank" rel="noopener">
+                → Explore ThreadStorm on GitHub
+              </a>
+            </p>
+
+            <pre data-filename="repository structure"><code class="language-text">threadstorm/
+├── core/
+│   ├── ThreadStorm.java
+│   ├── Worker.java
+│   ├── WorkerPool.java
+│   ├── TaskQueue.java
+│   ├── TaskEnvelope.java
+│   └── RetryPolicy.java
+├── task/
+│   ├── Task.java
+│   ├── TaskContext.java
+│   ├── TaskHandle.java
+│   └── TaskGroup.java
+├── metrics/
+├── cli/
+├── benchmarks/
+├── tests/
+├── Main.java
+├── run.ps1
+└── README.md</code></pre>
+
+            <hr />
+
+            <p>
+              <strong>
+                I started ThreadStorm because I wanted to understand Java threads beyond creating them and
+                watching a few print statements appear in a different order.
+              </strong>
+            </p>
+
+            <p>
+              I ended up with a task queue, worker pool, scheduler, retry handling, metrics, a terminal dashboard
+              and a much healthier respect for concurrency bugs.
+            </p>
+
+            <p>
+              Would I use it instead of <code>ExecutorService</code> in a production application? No.
+              Would I build it again to understand how task execution systems work? Absolutely.
+            </p>
+
+            <p>
+              Also, Java is better than C. I will not be taking questions from platze or r1ftzy at this time.
+            </p>
+
+          </article>
+
+          <aside class="toc"></aside>
+
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="../../assets/data/site.js"></script>
+  <script src="../../assets/data/projects.js"></script>
+  <script src="../../assets/data/skills.js"></script>
+  <script src="../../assets/data/socials.js"></script>
+  <script src="../../assets/data/about.js"></script>
+  <script src="../../assets/data/poetry.js"></script>
+  <script src="../../assets/data/stats.js"></script>
+  <script src="../../assets/data/blogs.js"></script>
+  <script src="../../assets/data/fortunes.js"></script>
+  <script src="../../assets/data/music.js"></script>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/filesystem.js"></script>
+  <script src="../../assets/js/terminal.js"></script>
+  <script src="../../assets/js/desktop.js"></script>
+
+  <script src="../../assets/js/toc.js"></script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js">
+  </script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/powershell.min.js">
+  </script>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js">
+  </script>
+
+  <script src="../../assets/js/hljs-init.js"></script>
+
+</body>
+</html>
