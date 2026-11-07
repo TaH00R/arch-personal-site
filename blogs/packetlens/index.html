@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PacketLens • TaHooR</title>
+  <meta name="description" content="I built PacketLens, a network observability platform in Go, to investigate unstable college Wi-Fi and understand what was happening beneath the connection." />
+  <meta name="theme-color" content="#11111b" />
+
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <link rel="stylesheet" href="../../assets/css/blog.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/base16/catppuccin-mocha.min.css" />
+</head>
+
+<body data-cwd="~/blog/packetlens" data-root="../../">
+  <div class="wallpaper" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="panel">
+    <div class="panel-left">
+      <a class="panel-brand" href="../../">TaHooR</a>
+      <ul class="workspaces">
+        <li><a href="../../"><span class="ws-num">1</span>home</a></li>
+        <li><a href="../../about/"><span class="ws-num">2</span>about</a></li>
+        <li><a aria-current="page" href="../"><span class="ws-num">3</span>blog</a></li>
+        <li><a href="../../poetry/"><span class="ws-num">4</span>poetry</a></li>
+        <li><a href="../../stats/"><span class="ws-num">5</span>stats</a></li>
+      </ul>
+    </div>
+
+    <div class="panel-center">
+      <span>
+        &copy; 2026 &middot;
+        <a href="https://github.com/TaH00R" target="_blank" rel="noopener">TaHooR</a>
+        &middot; running on <span>arch btw</span>
+      </span>
+    </div>
+
+    <div class="panel-right">
+      <span class="panel-swatches" aria-hidden="true">
+        <i class="sw-red"></i><i class="sw-yellow"></i><i class="sw-green"></i>
+        <i class="sw-blue"></i><i class="sw-mauve"></i>
+      </span>
+      <span class="panel-clock"></span>
+    </div>
+  </header>
+
+  <main id="main" class="desktop desktop-surface blog-page">
+    <section class="terminal window blog-terminal">
+      <div class="term-titlebar">
+        <span class="term-dots" aria-hidden="true">
+          <i class="dot-red"></i><i class="dot-yellow"></i><i class="dot-green"></i>
+        </span>
+        <span class="term-title"><b>TaHooR@arch</b>: ~/blog/packetlens</span>
+        <span></span>
+      </div>
+
+      <div class="term-body">
+        <div class="blog-layout">
+          <article>
+            <header>
+              <h1>I Built a Network Monitoring Platform Because College Wi-Fi Was Driving Me Insane</h1>
+              <div class="post-meta">
+                <span class="meta-item">07 Nov 2026</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">Systems</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">Networking</span>
+              </div>
+              <div class="post-tags">
+                <span class="tag">#Go</span>
+                <span class="tag">#Networking</span>
+                <span class="tag">#Observability</span>
+                <span class="tag">#Systems</span>
+              </div>
+            </header>
+
+            <p>
+              I had a fairly simple problem: the college Wi-Fi was being weird.
+              Sometimes everything worked perfectly. Other times, a request that normally took a few
+              milliseconds would suddenly take hundreds of milliseconds. Pages would hang, connections
+              would become sluggish, and everything would feel a little broken.
+            </p>
+
+            <p>
+              I wanted to understand what was actually happening instead of repeatedly blaming the
+              Wi-Fi and moving on with my day. So I built <strong>PacketLens</strong>.
+            </p>
+
+            <p>
+              PacketLens is a network observability platform that continuously monitors network
+              targets, collects latency measurements, tracks jitter, detects anomalies and presents
+              everything through a real-time dashboard.
+            </p>
+
+            <blockquote>
+              The original motivation was investigating unstable college Wi-Fi. The result was a
+              small network observability platform. Apparently, complaining about the internet can
+              turn into a software engineering project.
+            </blockquote>
+
+            <h2 id="why">01 · Why I Did This</h2>
+            <p>
+              Most people notice network problems when something stops working. A website takes too
+              long to load, a download slows down or a connection randomly drops. Usually, there is
+              not much information available beyond the fact that the internet feels slow.
+            </p>
+            <p>I wanted something more useful. I wanted to continuously measure network performance
+              and observe how it changes over time.</p>
+            <p>Some questions I wanted to answer:</p>
+            <ul>
+              <li>How long does establishing a TCP connection take?</li>
+              <li>How long does DNS resolution take?</li>
+              <li>How stable are these measurements?</li>
+              <li>Are latency spikes isolated or do multiple targets experience them simultaneously?</li>
+              <li>How frequently does the network become unstable, and how quickly does it recover?</li>
+            </ul>
+            <p>
+              I also wanted to understand networking better instead of treating it as something
+              that happens somewhere between my application and the server. That meant working with
+              sockets, connection establishment, DNS resolution, concurrency, time-series data and
+              statistical anomaly detection.
+            </p>
+
+            <h2 id="what-is-packetlens">02 · What Exactly Is PacketLens?</h2>
+            <p>
+              PacketLens is a network monitoring and observability platform. It continuously probes
+              configured network targets, records measurements and exposes them through an analytics
+              dashboard.
+            </p>
+            <p><strong>Backend:</strong> Go handles probe scheduling, network measurements, statistics,
+              persistence and the API.</p>
+            <p><strong>Frontend:</strong> Next.js and TypeScript power the dashboard, analytics,
+              historical trends and live monitoring interface.</p>
+            <p><strong>Storage:</strong> SQLite stores measurements and anomaly history.</p>
+
+            <pre data-filename="architecture"><code class="language-text">             ┌──────────────────────┐
+             │      PacketLens      │
+             │      Dashboard       │
+             └──────────┬───────────┘
+                        │
+                 REST / WebSocket
+                        │
+             ┌──────────▼───────────┐
+             │      Go Backend      │
+             ├──────────────────────┤
+             │   Probe Scheduler   │
+             │   Network Probes    │
+             │   Statistics        │
+             │   Anomaly Detection │
+             │   Data Management   │
+             └──────────┬───────────┘
+                        │
+             ┌──────────▼───────────┐
+             │       SQLite        │
+             │  Historical Data   │
+             │  Anomaly Episodes  │
+             └──────────────────────┘</code></pre>
+
+            <h2 id="demo">03 · A Quick Look at PacketLens</h2>
+            <p>
+              Here's a short walkthrough of the application. The dashboard brings the measurements
+              together so I can inspect current network behaviour and investigate what happened
+              earlier.
+            </p>
+            <figure class="post-video">
+              <video controls preload="metadata" playsinline>
+                <source src="../../assets/videos/packetlens.mp4" type="video/mp4" />
+                Your browser does not support HTML video.
+                <a href="../../assets/videos/packetlens.mp4">Open the PacketLens demo video</a>.
+              </video>
+              <figcaption>PacketLens — application walkthrough.</figcaption>
+            </figure>
+            <p class="video-note">
+              If your video has a different filename, update the <code>src</code> in this video
+              element to match the file inside <code>assets/videos/</code>.
+            </p>
+
+            <h2 id="probes">04 · Collecting Network Measurements</h2>
+            <p>
+              I started with two types of probes: DNS and TCP. They measure different operations,
+              so comparing them helps build a more complete picture of network behaviour.
+            </p>
+
+            <h3>DNS resolution</h3>
+            <p>
+              DNS translates domain names into IP addresses. The time taken by a lookup is recorded
+              as DNS resolution latency. This is the duration observed by the application; caching
+              and resolver behaviour can affect it.
+            </p>
+            <pre data-filename="dns-probe.go"><code class="language-go">start := time.Now()
+
+_, err := net.LookupHost("cloudflare.com")
+elapsed := time.Since(start)
+
+if err != nil {
+    // Record a failed probe.
+    return
+}
+
+// Record the successful lookup duration.
+latency := elapsed.Milliseconds()</code></pre>
+
+            <h3>TCP connection latency</h3>
+            <p>
+              For TCP, I measure how long it takes to establish a connection with a remote endpoint.
+              This is connection-establishment time, not the time required to complete an HTTP request.
+            </p>
+            <pre data-filename="tcp-probe.go"><code class="language-go">start := time.Now()
+
+conn, err := net.DialTimeout(
+    "tcp",
+    "1.1.1.1:443",
+    5*time.Second,
+)
+
+elapsed := time.Since(start)
+
+if err != nil {
+    // Record a failed connection attempt.
+    return
+}
+defer conn.Close()
+
+latency := elapsed.Milliseconds()</code></pre>
+
+            <h3>Why Go?</h3>
+            <p>
+              Go was a natural choice for this project. Its networking standard library is excellent,
+              and goroutines make it convenient to perform multiple independent probes concurrently.
+              I didn't want one slow network operation to block the entire monitoring system.
+            </p>
+
+            <h2 id="latency">05 · Understanding Latency</h2>
+            <p>
+              Latency is probably the most obvious metric in a network monitoring application.
+              However, looking at a single average doesn't tell us much about the actual behaviour
+              of a network.
+            </p>
+            <pre data-filename="latency-sample.txt"><code class="language-text">12 ms
+14 ms
+13 ms
+15 ms
+180 ms
+14 ms
+13 ms</code></pre>
+            <p>
+              The network appears reasonably stable most of the time, but there is a sudden spike.
+              An average alone can hide this behaviour. That's why PacketLens tracks historical
+              measurements and percentile-based statistics.
+            </p>
+            <table>
+              <thead><tr><th>Metric</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td>P50</td><td>Median latency</td></tr>
+                <tr><td>P90</td><td>90% of measurements are at or below this value</td></tr>
+                <tr><td>P95</td><td>95% of measurements are at or below this value</td></tr>
+                <tr><td>P99</td><td>99% of measurements are at or below this value</td></tr>
+                <tr><td>Maximum</td><td>Highest observed latency</td></tr>
+              </tbody>
+            </table>
+            <p>
+              P95 and P99 are particularly useful because they expose slow measurements that an
+              average might conceal.
+            </p>
+
+            <h2 id="jitter">06 · Jitter: Latency Is Not the Whole Story</h2>
+            <p>
+              Latency tells us how long an operation takes. Jitter describes how much that latency
+              varies between consecutive measurements.
+            </p>
+            <p>Consider two sequences:</p>
+            <pre data-filename="stable-network.txt"><code class="language-text">20 ms
+21 ms
+19 ms
+22 ms
+20 ms
+21 ms</code></pre>
+            <pre data-filename="unstable-network.txt"><code class="language-text">20 ms
+85 ms
+24 ms
+140 ms
+18 ms
+95 ms</code></pre>
+            <p>
+              The second network is much less consistent. A simple way to calculate the difference
+              between consecutive latency measurements is:
+            </p>
+            <p class="math-block">J<sub>t</sub> = |L<sub>t</sub> − L<sub>t−1</sub>|</p>
+            <p>Where <code>L<sub>t</sub></code> is the current latency and
+              <code>L<sub>t−1</sub></code> is the previous latency.</p>
+            <p>For example:</p>
+            <pre data-filename="jitter-example.txt"><code class="language-text">Previous latency: 20 ms
+Current latency:  85 ms
+
+Jitter: |85 - 20|
+      = 65 ms</code></pre>
+            <p>
+              These consecutive differences can then be aggregated to calculate mean jitter over
+              a collection of measurements. The important detail is that comparisons must use
+              consecutive measurements from the same target and measurement stream.
+            </p>
+
+            <h2 id="anomalies">07 · Detecting Network Anomalies</h2>
+            <p>
+              A monitoring dashboard becomes considerably more useful when it can identify unusual
+              behaviour automatically.
+            </p>
+            <p>
+              A fixed threshold sounds simple: mark every measurement above 100 ms as an anomaly.
+              But a latency of 100 ms might be unusual for one target and normal for another.
+              I wanted the detector to adapt to the normal behaviour of individual targets.
+            </p>
+
+            <h3>Rolling median and MAD</h3>
+            <p>
+              PacketLens uses statistical baselines based on rolling median and Median Absolute
+              Deviation (MAD). The median represents the central value of a collection of
+              measurements, while MAD estimates how far measurements typically deviate from it.
+            </p>
+            <p class="math-block">M = median(X)</p>
+            <p class="math-block">D<sub>i</sub> = |X<sub>i</sub> − M|</p>
+            <p class="math-block">MAD = median(D)</p>
+            <p>
+              A robust upper threshold can be expressed as:
+            </p>
+            <p class="math-block">T = M + k × (1.4826 × MAD)</p>
+            <p>
+              Here, <code>k</code> controls sensitivity. The scaling factor makes MAD comparable
+              to standard deviation under a normal distribution. This illustrates the statistical
+              approach; the actual detection decision also depends on the rolling baseline and
+              episode-handling logic.
+            </p>
+
+            <h3>Anomaly episodes</h3>
+            <p>
+              I also wanted to avoid treating every consecutive anomalous measurement as a
+              completely separate incident.
+            </p>
+            <pre data-filename="anomaly-episode.txt"><code class="language-text">Normal
+Normal
+Anomaly
+Anomaly
+Anomaly
+Normal
+Normal</code></pre>
+            <p>
+              Those three anomalous measurements belong to one episode, not three unrelated
+              incidents. PacketLens tracks anomaly episodes, including their onset and recovery
+              behaviour.
+            </p>
+
+            <h2 id="timeseries">08 · Time-Series Analytics</h2>
+            <p>
+              Collecting measurements is one thing. Displaying them correctly is another.
+              I wanted the dashboard to show how latency changes over time without accidentally
+              misrepresenting the data.
+            </p>
+            <p>
+              One important decision was how to handle missing measurements. Suppose a time bucket
+              contains no successful probes. Should its latency be displayed as zero?
+              Absolutely not. Zero milliseconds would imply that a successful operation completed
+              instantaneously.
+            </p>
+            <p>
+              The bucket might contain no measurements at all, or every probe might have failed.
+              These situations shouldn't be represented as successful measurements. PacketLens
+              therefore keeps missing and all-failed buckets empty.
+            </p>
+            <h3>Anomaly markers</h3>
+            <p>
+              The latency charts also display anomaly information. The line represents mean
+              successful latency per time bucket, while separate markers represent anomaly-onset
+              latency. Multiple anomaly episodes can occur within the same bucket, and each onset
+              is counted.
+            </p>
+            <p>
+              This keeps two different signals separate: how successful requests behaved, and when
+              unusual network behaviour began.
+            </p>
+
+            <h2 id="realtime">09 · Real-Time Monitoring</h2>
+            <p>
+              I didn't want users to manually refresh the dashboard every few seconds to see new
+              measurements. The backend streams updates to the frontend using WebSockets.
+            </p>
+            <p>
+              This lets the dashboard receive new monitoring information as it becomes available,
+              without repeatedly requesting the entire historical dataset.
+            </p>
+            <p>
+              I also had to think about what happens when a connection drops. A real-time interface
+              needs to handle disconnections and reconnect appropriately rather than silently
+              stopping updates.
+            </p>
+
+            <h2 id="dashboard">10 · What the Dashboard Looks Like</h2>
+            <p>
+              The dashboard is divided into sections, each focusing on a particular aspect of
+              network observability:
+            </p>
+            <ul>
+              <li><strong>Overview:</strong> High-level network statistics and latency trends.</li>
+              <li><strong>TCP Analytics:</strong> Connection latency and TCP performance.</li>
+              <li><strong>DNS Analytics:</strong> Resolution statistics and resolver comparisons.</li>
+              <li><strong>Jitter:</strong> Network variability and consecutive latency differences.</li>
+              <li><strong>Availability:</strong> Probe success and availability statistics.</li>
+              <li><strong>Anomalies:</strong> Detected anomaly episodes.</li>
+              <li><strong>Incidents:</strong> Historical incident information.</li>
+              <li><strong>Correlations:</strong> Relationships between measurements from different targets.</li>
+              <li><strong>Targets and Exports:</strong> Configured targets and historical measurement exports.</li>
+            </ul>
+
+            <h2 id="lessons">11 · What I Learned</h2>
+            <p><strong>Successful requests don't necessarily mean a healthy network.</strong>
+              A probe can succeed while taking hundreds of milliseconds to complete. Availability
+              and performance are different dimensions.</p>
+            <p><strong>Averages can hide interesting behaviour.</strong> Percentiles, distributions
+              and historical trends often reveal things that a single average cannot.</p>
+            <p><strong>Missing data is not zero.</strong> Treating unavailable measurements as
+              valid values can quietly make monitoring dashboards misleading.</p>
+            <p><strong>Anomaly detection is more complicated than setting a threshold.</strong>
+              Different targets can have different normal behaviour. Adaptive statistical baselines
+              are more useful than one universal latency threshold.</p>
+            <p><strong>Real-time systems need to think about failure.</strong> Network connections
+              drop, probes time out and data becomes unavailable. A monitoring application needs
+              to handle these situations instead of assuming everything will work perfectly.</p>
+            <p>
+              Perhaps the biggest lesson was that networking stopped feeling abstract once I built
+              something that could observe it. TCP connections, DNS lookups, latency, jitter and
+              concurrency became things I could actually measure and investigate.
+            </p>
+
+            <h2 id="coolness">12 · Why Am I Cooler Than Random Kids?</h2>
+            <p>This section is obviously peer-reviewed science.</p>
+            <pre data-filename="coolness.sh"><code class="language-bash">$ ./why-am-i-cooler
+
+checking credentials...
+
+[✓] built a network monitoring platform
+[✓] implemented TCP probing
+[✓] implemented DNS probing
+[✓] measured latency and jitter
+[✓] built time-series analytics
+[✓] implemented statistical anomaly detection
+[✓] tracked anomaly episodes
+[✓] added real-time monitoring
+[✓] built a dashboard
+[✓] investigated college Wi-Fi
+
+college-wifi.exe:
+
+[!] still unstable
+
+verdict:
+
+PacketLens is cooler.
+
+confidence interval:
+
+probably
+
+exit code: 0</code></pre>
+            <p>Is this a scientifically valid way to establish coolness? No.</p>
+            <p>
+              Did I spend an unreasonable amount of time investigating the college Wi-Fi instead
+              of simply using mobile data? Also no comment.
+            </p>
+
+            <h2 id="whats-next">13 · What's Next?</h2>
+            <p>
+              PacketLens is already useful as a monitoring platform, but there is plenty more
+              I want to explore.
+            </p>
+            <p>
+              The biggest idea is machine learning. I'm interested in building a separate network
+              intelligence engine that consumes measurements collected by PacketLens and learns
+              to identify unusual network behaviour.
+            </p>
+            <ul>
+              <li>Unsupervised anomaly detection using Isolation Forest.</li>
+              <li>Predicting network degradation using historical measurements.</li>
+              <li>Classifying network conditions automatically.</li>
+              <li>Detecting correlated anomalies across multiple destinations.</li>
+              <li>Forecasting future latency.</li>
+            </ul>
+            <p>
+              I'm also working on a separate Go-based network telemetry collector. The idea is to
+              make network data collection reusable infrastructure that can eventually feed other
+              monitoring and analysis systems.
+            </p>
+
+            <h2 id="source">14 · Source Code</h2>
+            <p>
+              PacketLens is open source. You can find the implementation, documentation and
+              development history in the repository.
+            </p>
+            <p>
+              <a href="https://github.com/TaH00R/packetlens" target="_blank" rel="noopener">
+                → Open PacketLens on GitHub
+              </a>
+            </p>
+            <pre data-filename="repository"><code class="language-text">packetlens/
+├── backend/
+│   └── Go networking and API
+├── frontend/
+│   └── Next.js dashboard
+└── README.md</code></pre>
+            <hr />
+            <p><strong>
+              I originally built PacketLens because I wanted to understand why my college Wi-Fi
+              was behaving so strangely.
+            </strong></p>
+            <p>
+              It turned into a project where I got to explore networking, Go concurrency,
+              time-series analytics, statistical anomaly detection and real-time systems.
+            </p>
+            <p>And I got a pretty useful dashboard out of it. Not a bad trade for being annoyed at the internet.</p>
+          </article>
+
+          <aside class="toc"></aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../assets/data/site.js"></script>
+  <script src="../../assets/data/projects.js"></script>
+  <script src="../../assets/data/skills.js"></script>
+  <script src="../../assets/data/socials.js"></script>
+  <script src="../../assets/data/about.js"></script>
+  <script src="../../assets/data/poetry.js"></script>
+  <script src="../../assets/data/stats.js"></script>
+  <script src="../../assets/data/blogs.js"></script>
+  <script src="../../assets/data/fortunes.js"></script>
+  <script src="../../assets/data/music.js"></script>
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/filesystem.js"></script>
+  <script src="../../assets/js/terminal.js"></script>
+  <script src="../../assets/js/desktop.js"></script>
+  <script src="../../assets/js/toc.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/http.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+  <script src="../../assets/js/hljs-init.js"></script>
+
+  <style>
+    .post-video {
+      margin: 1.75rem 0;
+    }
+    .post-video video {
+      display: block;
+      width: 100%;
+      max-height: 620px;
+      border: 1px solid var(--surface1, #45475a);
+      border-radius: 10px;
+      background: #000;
+    }
+    .post-video figcaption,
+    .video-note {
+      margin-top: .65rem;
+      color: var(--subtext0, #a6adc8);
+      font-size: .9rem;
+    }
+    .math-block {
+      overflow-x: auto;
+      padding: .8rem 1rem;
+      border-left: 3px solid var(--mauve, #cba6f7);
+      background: var(--surface0, #313244);
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+  </style>
+</body>
+</html>
